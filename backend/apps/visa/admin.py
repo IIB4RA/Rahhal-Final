@@ -1,3 +1,7 @@
 from django.contrib import admin
+from .models import applications, passports, tourist_pass, pass_usage
 
-# Register your models here.
+
+admin.site.register(applications)
+admin.site.register(passports)
+admin.site.register(tourist_pass)
