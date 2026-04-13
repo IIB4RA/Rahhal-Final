@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'all_services_page.dart'; 
+import 'personal_info_page.dart';
 
 void main() => runApp(const RahhalApp());
 
@@ -16,7 +17,7 @@ class RahhalApp extends StatelessWidget {
   }
 }
 
-// USER TYPE PAGE 
+// USER TYPE PAGE
 class UserTypePage extends StatelessWidget {
   const UserTypePage({super.key});
 
@@ -77,17 +78,14 @@ class HomePage extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 10.0),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Color.fromRGBO(122, 31, 44, 1), size: 28),
-            onPressed: () => Navigator.pop(context),
-          ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
+          onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
           "Rahhal – Heritage Guide",
           style: TextStyle(
-            color: Color.fromRGBO(122, 31, 44, 1),
+            color: Color(0xFF8B2323),
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -97,7 +95,8 @@ class HomePage extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            _buildHeroCard(),
+            
+            _buildHeroCard(context), 
             const SizedBox(height: 24),
             const Align(
               alignment: Alignment.centerLeft,
@@ -107,7 +106,6 @@ class HomePage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            //quick services
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -123,8 +121,6 @@ class HomePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 20),
-
-      // howSystemWork 
             _buildViewAllButton(context), 
             const SizedBox(height: 40),
             const Text(
@@ -142,8 +138,7 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // image container part
-  Widget _buildHeroCard() {
+  Widget _buildHeroCard(BuildContext context) {
     return Container(
       width: double.infinity,
       height: 200,
@@ -169,10 +164,16 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             ElevatedButton(
-              onPressed: () {}, 
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PersonalInfoPage ()),
+                );
+              },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white, 
+                backgroundColor: Colors.white,
                 foregroundColor: const Color(0xFF8B2323),
+                elevation: 2,
               ),
               child: const Text("Start Your Journey Now →"),
             )
@@ -209,12 +210,11 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  // ViewAllServices button
   Widget _buildViewAllButton(BuildContext context) {
     return ElevatedButton.icon(
       onPressed: () {
-      
-       Navigator.push(context, MaterialPageRoute(builder: (_) => ServicesScreen()));
+        // Ensure ServicesScreen is defined in all_services_page.dart
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const ServicesScreen()));
       },
       icon: const Icon(Icons.arrow_forward_rounded, size: 18), 
       label: const Text("View All Services"), 
