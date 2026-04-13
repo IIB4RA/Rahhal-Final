@@ -1,9 +1,9 @@
 from rest_framework import permissions
 
-class IsInternationalTourist(permissions.BasePermission):
+class IsTourist(permissions.BasePermission):
     def has_permission(self, request, view):
         return bool(
-            request.user and request.user.is_authenticated and getattr(request.user, "role", None) == "international_tourist"
+            request.user and request.user.is_authenticated and getattr(request.user, "role", None) == "tourist"
         )
     
 
