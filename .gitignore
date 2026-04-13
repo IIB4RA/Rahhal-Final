@@ -3,7 +3,7 @@ venv/
 env/
 ENV/
 bin/
-lib/
+
 include/
 share/
 

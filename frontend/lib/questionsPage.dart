@@ -1,0 +1,251 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'selectTypePage.dart';
+
+class QuestionsPage extends StatefulWidget {
+  @override
+  _QuestionsPageState createState() => _QuestionsPageState();
+}
+
+class _QuestionsPageState extends State<QuestionsPage> {
+  //default selected values
+  String interest = "Relaxation";
+  String travelWith = "Friends";
+  String budget = "Normal Budget";
+  String places = "Historical sites";
+
+  
+  final Color backgroundColor= Color(0xffEAE3D2); 
+  final Color darkMaroon = Color.fromRGBO(122, 31, 44, 1); 
+  final Color darkBlue = Color(0xff1C2340); 
+  final Color textGrey = Color.fromRGBO(122, 31, 44, 0.6); 
+  final Color labelTextBlack = Color.fromARGB(190, 20, 26, 47); 
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 10.0),
+          child: IconButton(
+            icon: Icon(Icons.arrow_back, color: darkMaroon, size: 28,), 
+            onPressed: () {
+              Navigator.pop(context);
+            },
+          ),
+        ),
+        title: Text(
+          "Rahhal – Heritage Guide",
+          style: TextStyle(
+            color: darkMaroon,
+            fontSize: 14,
+            fontWeight: FontWeight.w600, 
+          ),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(16, 40, 16, 40), 
+        child: Column(
+          children: [
+             SizedBox(height: 30),
+            // Subtitle Section
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    style: TextStyle(height: 1.0),
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: "Before we start ...\n",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: darkMaroon,
+                          
+                          fontFamily: 'serif',
+                        ),
+                      ),
+                      TextSpan(
+                        text: "tell us about your interests",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w700,
+                          color: darkMaroon,
+                          fontFamily: 'serif', 
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 10),
+            Center(
+              child: Text(
+                "This helps us recommend places you will love in Jordan",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: textGrey, fontSize: 13),
+              ),
+            ),
+            SizedBox(height: 20),
+
+            //  Dropdown list
+            _buildCustomDropdownRow(
+              
+              "What are your travel interests?",
+              interest,
+              ["History", "Nature", "Adventure", "Food", "Relaxation", "Shopping"],
+              (val) { setState(() => interest = val!); },
+            
+            ),
+
+            _buildCustomDropdownRow(
+              "Who are you traveling with?",
+              travelWith,
+              ["Solo", "Couple", "Family", "Friends"],
+              (val) { setState(() => travelWith = val!); },
+            ),
+
+            _buildCustomDropdownRow(
+              "What is your travel style",
+              budget,
+              ["Low Budget", "Normal Budget", "Luxury Travel"],
+              (val) { setState(() => budget = val!); },
+            ),
+
+            _buildCustomDropdownRow(
+              "What type of places do you enjoy?",
+              places,
+              ["Historical sites", "Natural landscapes", "Beaches", "Cities", "Museums"],
+              (val) { setState(() => places = val!); },
+            ),
+
+            SizedBox(height: 6),
+
+            
+
+            SizedBox(height: 10),
+            Center(
+              child: Text(
+                "We will personalize your travel experience",
+                style: TextStyle(color: darkBlue, fontSize: 12),
+              ),
+            ),
+
+            SizedBox(height: 17),
+
+            // LET'S START BUTTON 
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: darkBlue, 
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 27, vertical: 12),
+                elevation: 4,
+              ),
+              onPressed: () {
+                // go to SelectTypePage
+                 Navigator.push(context, MaterialPageRoute(builder: (_) => SelectTypePage()));
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Let’s Start",
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
+                  ),
+                  SizedBox(width: 12),
+                  Icon(Icons.arrow_forward_outlined, size: 24),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Dropdown 2
+  Widget _buildCustomDropdownRow(String title, String value, List<String> items, Function(String?) onChanged) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 15),
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: Color.fromARGB(210, 255, 255, 255),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Left Side
+          Expanded(
+            child: Row(
+              children: [
+                Icon(Icons.help_outline, color: darkMaroon, size: 20), 
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: labelTextBlack,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          SizedBox(width: 10),
+
+          // Right Side
+          IntrinsicWidth( 
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 9, vertical: 2),
+              decoration: BoxDecoration(
+                color: darkMaroon,
+                borderRadius: BorderRadius.circular(10), 
+              ),
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: value,
+                  dropdownColor:darkMaroon,
+                  borderRadius: BorderRadius.circular(12),
+                  isDense: true, 
+                  //ARROW 
+                  icon: Icon(Icons.keyboard_arrow_down, color: Colors.white, size:20), 
+                  style: TextStyle(color: Colors.white, fontSize: 12), 
+                  items: items
+                      .map((e) => DropdownMenuItem(
+                    child: Text(
+                        e,
+                        style: TextStyle(color:Color.fromARGB(255, 255, 255, 255))), 
+                    value: e,
+                  ))
+                      .toList(),
+                  onChanged: onChanged,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
