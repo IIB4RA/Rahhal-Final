@@ -221,7 +221,8 @@ class HeritageCard extends StatelessWidget {
 
 // connect services with pages
 class VisaPage extends StatelessWidget { const VisaPage({super.key}); @override Widget build(BuildContext context) => const Scaffold(body: Center(child: Text("Visa Page"))); }
-class JordanPassPage extends StatelessWidget { const JordanPassPage({super.key}); @override Widget build(BuildContext context) => const Scaffold(body: Center(child: Text("Jordan Pass Page"))); }
+class JordanPassPage extends StatelessWidget { const JordanPassPage({super.key}); @override Widget build(BuildContext context) => const Scaffold(body: Center(child: Text("Jordan Pass Page")));
+ }
 class AIPlannerPage extends StatelessWidget { const AIPlannerPage({super.key}); @override Widget build(BuildContext context) => const Scaffold(body: Center(child: Text("AI Planner Page"))); }
 class MapPage extends StatelessWidget { const MapPage({super.key}); @override Widget build(BuildContext context) => const Scaffold(body: Center(child: Text("Map Page"))); }
 class ExplorePage extends StatelessWidget { const ExplorePage({super.key}); @override Widget build(BuildContext context) => const Scaffold(body: Center(child: Text("Explore Page"))); }

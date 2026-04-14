@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import 'digitalPass.dart';
 class VisaApprovedPage extends StatelessWidget {
   // variable fill from backend
   final String referenceNo;
@@ -94,7 +94,13 @@ class VisaApprovedPage extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                      onPressed: () {},
+                      //
+                      onPressed: () {
+                        Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const JordanPassPage()),
+  );
+                      },
                       icon: const Icon(Icons.remove_red_eye_outlined, size: 18, color: primaryRed),
                       label: const Text("View Digital Visa", style: TextStyle(color: primaryRed)),
                       style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFE0E0E0))),
@@ -129,7 +135,12 @@ class VisaApprovedPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 15),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                        Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => const JordanPassPage()),
+  );
+                      },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: primaryRed,
