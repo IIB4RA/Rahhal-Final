@@ -1,10 +1,13 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-import uuid
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    username_field = 'identifier'
 
 User = get_user_model()
 
-ROLE_CHOICES = ("resident", "international_tourist")
+ROLE_CHOICES = ("resident", "tourist", "guide", "admin")
 
 class RegisterSerializer(serializers.Serializer):
     identifier = serializers.CharField()

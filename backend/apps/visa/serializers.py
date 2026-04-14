@@ -1,10 +1,11 @@
 from rest_framework import serializers
-from .models import applications, passports, tourist_pass, pass_usage
+from .models import Applications, Passports, Tourist_Pass
+#from .models import Pass_Usage
 
 
 class PassportSerializer(serializers.ModelSerializer):
     class Meta:
-        model = passports
+        model = Passports
         fields = (
             'user_id',
             'passport_number',
@@ -20,10 +21,10 @@ class PassportSerializer(serializers.ModelSerializer):
 
 
 class VisaApplicationSerializer(serializers.ModelSerializer):
-    passport_details = PassportSerializer()
+    passport_details = PassportSerializer(read_only=True)
 
     class Meta:
-        model = applications
+        model = Applications
         fields = (
             "user_id",
             "passport_id",
@@ -34,7 +35,7 @@ class VisaApplicationSerializer(serializers.ModelSerializer):
             "processed_date",
             "processing_days",
             "rejection_reason",
-            "payment_id",
+            #"payment_id",
             "created_at",
             "updated_at",
         )
@@ -53,10 +54,12 @@ class VisaApplicationSerializer(serializers.ModelSerializer):
 
 
 class CreateVisaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = applications
-        fields = ("visa_type", "passport_data")
+    passport_data = PassportSerializer(write_only=True)
 
+    class Meta:
+        model = Applications
+        fields = ("visa_type", "passport_data")
+        read_only_fields = ('status',)
 
 
 class OCRSerializer(serializers.Serializer):
@@ -67,7 +70,7 @@ class OCRSerializer(serializers.Serializer):
 
 class DigitalPassSerializer(serializers.ModelSerializer):
     class Meta:
-        model = tourist_pass
+        model = Tourist_Pass
         fields = (
             "user_id",
             "visa_id",
@@ -86,7 +89,7 @@ class AdminApplicationListSerializer(serializers.ModelSerializer):
     tourist_name = serializers.CharField(source='user_id.username', read_only=True)
 
     class Meta:
-        model = applications
+        model = Applications
         fields = (
             "user_id", 
             "visa_type", 

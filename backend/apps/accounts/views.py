@@ -1,4 +1,3 @@
-from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
@@ -57,7 +56,8 @@ class MeView(APIView):
         serializer = UpdateProfileSerializer(
             instance=request.user,
             data=request.data,
-            context={"request":request}
+            context={"request":request},
+            partial=True,
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
