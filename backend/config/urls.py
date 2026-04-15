@@ -7,6 +7,6 @@ urlpatterns = [
     path('api/visa/', include("apps.visa.urls")),
     path('api/tourism/', include("apps.attractions.urls")),
     path('api/booking/', include("apps.booking.urls")),
-path('api/passport/scan/', PassportScannerView.as_view(), name='passport_scan'),
-
+    path('api/passport/scan/', PassportScannerView.as_view(), name='passport_scan'),
+    path('api/planner/', include("apps.planner.urls")),
 ]
