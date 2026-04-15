@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/favorites_provider.dart';
+import'aiAssistant_page.dart';
 import 'welcomepage.dart';        
 import 'main_wrapper.dart';       
 import 'explorPage.dart';         
@@ -26,7 +27,8 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey
       ),
-      home: const MainWrapper(),
+      //MainWrapper
+      home: const AIChatScreen(),
     );
   }
 }
