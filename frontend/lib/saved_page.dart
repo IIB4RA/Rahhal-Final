@@ -7,13 +7,13 @@ class SavedPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the list from the provider
+    //  list from provider
     final savedList = context.watch<FavoritesProvider>().savedItems;
 
     return Scaffold(
       backgroundColor: const Color(0xFFE7E9D3),
       appBar: AppBar(
-        title: const Text("My Saved Places", style: TextStyle(color: Color(0xFF702632))),
+        title: const Text("Saved Items", style: TextStyle(color: Color(0xFF702632))),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -24,7 +24,7 @@ class SavedPage extends StatelessWidget {
               itemCount: savedList.length,
               itemBuilder: (context, index) {
                 final item = savedList[index];
-                // Reuse your card widget here or build a simpler version
+                
                 return ListTile(
                   title: Text(item['name']),
                   subtitle: Text(item['location']),

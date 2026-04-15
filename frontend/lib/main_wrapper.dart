@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'explorPage.dart';
 import 'saved_page.dart'; 
+import 'events_page.dart';
 
 class MainWrapper extends StatefulWidget {
   const MainWrapper({super.key});
@@ -19,7 +20,12 @@ class _MainWrapperState extends State<MainWrapper> {
     const Center(child: Text("Trips Page")), 
     const Center(child: Text("Profile Page")), 
   ];
-
+final List<Widget> _pages = [
+  const ExploreScreen(),
+  const EventsPage(), 
+  const SavedPage(),
+  const Center(child: Text("Profile")),
+];
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;

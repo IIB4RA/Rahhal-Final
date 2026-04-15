@@ -7,6 +7,7 @@ import 'welcomepage.dart';
 import 'main_wrapper.dart';       
 import 'explorPage.dart';         
 import 'hotelBoookingPage.dart';  
+import'events_page.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey
       ),
-      //MainWrapper
+      //MainWrapper AIChatScreen 
       home: const AIChatScreen(),
     );
   }
