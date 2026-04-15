@@ -1,141 +1,106 @@
+
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'models/hotel_model.dart';
 
-class HotelBookingPage extends StatefulWidget {
-  const HotelBookingPage({super.key});
-
-  @override
-  State<HotelBookingPage> createState() => _HotelBookingPageState();
-}
-
-class _HotelBookingPageState extends State<HotelBookingPage> {
-  static const Color primaryBurgundy = Color(0xFF7A2021);
-  static const Color backgroundCream = Color(0xFFF1F4E8);
-
-  // دالة جلب البيانات من Django API
-  Future<List<dynamic>> fetchHotels() async {
-    // ملاحظة: استبدل YOUR_SERVER_IP بـ 10.0.2.2 إذا كنت تستخدم المحاكي (Emulator)
-    const String apiUrl = 'http://10.0.2.2:8000/api/hotels/'; 
-    
-    try {
-      final response = await http.get(Uri.parse(apiUrl));
-      if (response.statusCode == 200) {
-        // تحويل النص القادم (JSON) إلى قائمة
-        return json.decode(utf8.decode(response.bodyBytes)); 
-      } else {
-        throw Exception('فشل في تحميل الفنادق من السيرفر');
-      }
-    } catch (e) {
-      throw Exception('تأكد من تشغيل سيرفر Django: $e');
-    }
-  }
+class HotelBookingScreen extends StatelessWidget {
+  const HotelBookingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // will replace this with API call 
+    final List<Hotel> hotels = [
+      Hotel(
+        id: "1",
+        name: "Al Maha Luxury Resort",
+        location: "Downtown",
+        rating: 4.9,
+        reviews: 1240,
+        price: "420",
+        distance: "0.8 km from you",
+        imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945",
+      ),
+      Hotel(
+        id: "2",
+        name: "Urban Oasis Suites",
+        location: "Business Bay",
+        rating: 4.7,
+        reviews: 850,
+        price: "215",
+        distance: "2.4 km from you",
+        imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b",
+      ),
+      Hotel(
+        id: "3",
+        name: "The Palm Marina Hotel",
+        location: "Palm Jumeirah",
+        rating: 4.8,
+        reviews: 2100,
+        price: "385",
+        distance: "5.1 km from you",
+        imageUrl: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb",
+        isTopRated: true,
+      ),
+    ];
+
     return Scaffold(
-      backgroundColor: backgroundCream,
-      appBar: _buildAppBar(),
+      backgroundColor: const Color(0xFFE7E9D3),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF702632)),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Column(
+          children: const [
+            Text("Rihla Stays", style: TextStyle(color: Color(0xFF702632), fontWeight: FontWeight.bold)),
+            Text("Jordan", style: TextStyle(color: Colors.brown, fontSize: 12)),
+          ],
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(onPressed: () {}, icon: const Icon(Icons.search, color: Color(0xFF702632))),
+        ],
+      ),
       body: Column(
         children: [
-          _buildFilterBar(),
+          _buildFilters(),
+          _buildMiniMap(),
           Expanded(
-            child: FutureBuilder<List<dynamic>>(
-              future: fetchHotels(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator(color: primaryBurgundy));
-                } else if (snapshot.hasError) {
-                  return Center(child: Text("خطأ: ${snapshot.error}"));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(child: Text("لا توجد فنادق مضافة حالياً"));
-                }
-
-                final hotels = snapshot.data!;
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: hotels.length + 1, // +1 من أجل الخريطة في البداية
-                  itemBuilder: (context, index) {
-                    if (index == 0) return _buildMapPreview();
-                    
-                    final hotel = hotels[index - 1];
-                    return _buildHotelCard(
-                      title: hotel['name'] ?? 'بدون اسم',
-                      location: hotel['location'] ?? 'غير محدد',
-                      price: hotel['price'].toString(),
-                      rating: hotel['rating']?.toString() ?? '0.0',
-                      reviews: hotel['reviews_count']?.toString() ?? '0',
-                      distance: hotel['distance'] ?? 'قريب منك',
-                      imageUrl: hotel['image_url'] ?? 'https://via.placeholder.com/150',
-                    );
-                  },
-                );
-              },
+            child: ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: hotels.length,
+              itemBuilder: (context, index) => _buildHotelCard(hotels[index]),
             ),
           ),
         ],
       ),
+      bottomNavigationBar: _buildBottomNav(),
     );
   }
 
-  // --- Widgets البناء ---
-
-  AppBar _buildAppBar() {
-    return AppBar(
-      backgroundColor: backgroundCream,
-      elevation: 0,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back, color: Colors.black),
-        onPressed: () => Navigator.pop(context),
-      ),
-      title: Column(
-        children: const [
-          Text("Rihla Stays", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold, fontSize: 18)),
-          Text("Jordan Heritage Hotels", style: TextStyle(color: primaryBurgundy, fontSize: 12)),
-        ],
-      ),
-      centerTitle: true,
-      actions: [
-        IconButton(icon: const Icon(Icons.search, color: Colors.black), onPressed: () {}),
-      ],
-    );
-  }
-
-  Widget _buildFilterBar() {
+  Widget _buildFilters() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          _buildFilterButton(Icons.tune, "Filters", isSelected: true),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(color: const Color(0xFF702632), borderRadius: BorderRadius.circular(8)),
+            child: const Icon(Icons.tune, color: Colors.white, size: 20),
+          ),
           const SizedBox(width: 8),
-          _buildDropdownFilter("Price"),
+          _filterChip("Price Range"),
           const SizedBox(width: 8),
-          _buildDropdownFilter("Rating"),
+          _filterChip("Rating"),
         ],
       ),
     );
   }
 
-  Widget _buildFilterButton(IconData icon, String label, {bool isSelected = false}) {
+  Widget _filterChip(String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: isSelected ? primaryBurgundy : Colors.white,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: isSelected ? Colors.white : Colors.black),
-          const SizedBox(width: 5),
-          Text(label, style: TextStyle(color: isSelected ? Colors.white : Colors.black, fontWeight: FontWeight.bold, fontSize: 12)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDropdownFilter(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8)),
       child: Row(
         children: [
@@ -146,28 +111,28 @@ class _HotelBookingPageState extends State<HotelBookingPage> {
     );
   }
 
-  Widget _buildMapPreview() {
+  Widget _buildMiniMap() {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 15),
-      height: 100,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      height: 80,
       width: double.infinity,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(12),
         image: const DecorationImage(
-          image: NetworkImage("https://www.google.com/maps/d/u/0/thumbnail?mid=1_75Z9yLq_x-2E8H9m8Lp0G1v8I8"), 
+          image: NetworkImage("https://via.placeholder.com/400x80"), 
           fit: BoxFit.cover,
         ),
       ),
       child: Center(
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: const [
-              Icon(Icons.map, size: 16, color: primaryBurgundy),
-              SizedBox(width: 5),
-              Text("View Map", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
+              Icon(Icons.map_outlined, size: 16),
+              SizedBox(width: 4),
+              Text("View Map", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             ],
           ),
         ),
@@ -175,64 +140,84 @@ class _HotelBookingPageState extends State<HotelBookingPage> {
     );
   }
 
-  Widget _buildHotelCard({
-    required String title,
-    required String location,
-    required String price,
-    required String rating,
-    required String reviews,
-    required String distance,
-    required String imageUrl,
-  }) {
+  Widget _buildHotelCard(Hotel hotel) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10, offset: Offset(0, 5))],
-      ),
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            child: Image.network(imageUrl, height: 180, width: double.infinity, fit: BoxFit.cover),
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+                child: Image.network(hotel.imageUrl, height: 200, width: double.infinity, fit: BoxFit.cover),
+              ),
+              if (hotel.isTopRated)
+                Positioned(
+                  top: 12, left: 12,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(color: const Color(0xFF702632), borderRadius: BorderRadius.circular(4)),
+                    child: const Text("TOP RATED", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                  ),
+                ),
+              const Positioned(
+                top: 12, right: 12,
+                child: CircleAvatar(backgroundColor: Colors.white, radius: 15, child: Icon(Icons.favorite_border, size: 18, color: Colors.black)),
+              ),
+            ],
           ),
           Padding(
-            padding: const EdgeInsets.all(15),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                    Text("\$$price", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryBurgundy)),
+                    Text(hotel.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text("\$${hotel.price}", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF702632))),
                   ],
                 ),
-                Row(
-                  children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 16),
-                    Text(" $rating ($reviews reviews) • $location", style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                  ],
-                ),
-                const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("📍 $distance from you", style: const TextStyle(fontSize: 11, color: Colors.black54)),
+                    Text("${hotel.rating} (${hotel.reviews} reviews) • ${hotel.location}", style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    const Text("per night", style: TextStyle(fontSize: 10, color: Colors.grey)),
+                  ],
+                ),
+                const Divider(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(children: [const Icon(Icons.location_on_outlined, size: 16, color: Colors.brown), Text(hotel.distance, style: const TextStyle(fontSize: 11))]),
                     ElevatedButton(
-                      onPressed: () {},
-                      style: ElevatedButton.styleFrom(backgroundColor: primaryBurgundy, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                      child: const Text("Book Now", style: TextStyle(color: Colors.white, fontSize: 12)),
+                      onPressed: () {}, // ask bara if ther is a booking detail/checkout page
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF702632), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+                      child: const Text("Book Now", style: TextStyle(color: Colors.white)),
                     ),
                   ],
                 ),
               ],
             ),
-          ),
+          )
         ],
       ),
+    );
+  }
+
+  Widget _buildBottomNav() {
+    return BottomNavigationBar(
+      type: BottomNavigationBarType.fixed,
+      selectedItemColor: const Color(0xFF702632),
+      currentIndex: 0,
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.explore), label: "Explore"),
+        BottomNavigationBarItem(icon: Icon(Icons.favorite_border), label: "Saved"),
+        BottomNavigationBarItem(icon: Icon(Icons.business_center_outlined), label: "Bookings"),
+        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "Profile"),
+      ],
     );
   }
 }

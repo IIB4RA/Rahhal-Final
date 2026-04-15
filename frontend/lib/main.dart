@@ -1,9 +1,17 @@
+// main.dart
 import 'package:flutter/material.dart';
-import 'welcomepage.dart';
-
+import 'package:provider/provider.dart';
+import 'providers/favorites_provider.dart';
+import 'welcomepage.dart';        
+import 'main_wrapper.dart';       
+import 'explorPage.dart';         
+import 'hotelBoookingPage.dart';  
 void main() {
-  runApp(const MyApp()
-  
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) => FavoritesProvider(),
+      child: const MyApp(),
+    ),
   );
 }
 
@@ -14,12 +22,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Rahhal Jordan', 
+      title: 'Rahhal Jordan',
       theme: ThemeData(
-        primarySwatch: Colors.blueGrey 
+        primarySwatch: Colors.blueGrey
       ),
-     
-      home: WelcomePage(), 
+      home: const MainWrapper(),
     );
   }
 }
