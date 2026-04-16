@@ -8,6 +8,7 @@ import 'main_wrapper.dart';
 import 'explorPage.dart';         
 import 'hotelBoookingPage.dart';  
 import'events_page.dart';
+import'admin_page.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blueGrey
       ),
       //MainWrapper AIChatScreen 
-      home: const AIChatScreen(),
+      home: TourismAnalyticsScreen(),
     );
   }
 }
