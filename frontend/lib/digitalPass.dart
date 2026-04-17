@@ -5,7 +5,6 @@ class JordanPassPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     const Color primaryBurgundy = Color(0xFF7A2021);
     const Color lightCream = Color(0xFFF9F4E8);
 //Jordan Pass
@@ -16,7 +15,8 @@ class JordanPassPage extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
+          icon:
+              const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -56,14 +56,25 @@ class JordanPassPage extends StatelessWidget {
                       const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("HASHEMITE KINGDOM OF JORDAN", style: TextStyle(color: Colors.white70, fontSize: 10, letterSpacing: 1.2)),
-                          Text("Jordan Pass", style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                          Text("HASHEMITE KINGDOM OF JORDAN",
+                              style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 10,
+                                  letterSpacing: 1.2)),
+                          Text("Jordan Pass",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold)),
                         ],
                       ),
                       Container(
                         padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(color: Colors.white.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
-                        child: const Icon(Icons.shield, color: Colors.amber, size: 20),
+                        decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8)),
+                        child: const Icon(Icons.shield,
+                            color: Colors.amber, size: 20),
                       )
                     ],
                   ),
@@ -82,11 +93,21 @@ class JordanPassPage extends StatelessWidget {
                       const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("FULL NAME", style: TextStyle(color: Colors.white70, fontSize: 10)),
-                          Text("Abdullah Al-\nHashem", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                          Text("FULL NAME",
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 10)),
+                          Text("Abdullah Al-\nHashem",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold)),
                           SizedBox(height: 8),
-                          Text("PASSPORT NUMBER", style: TextStyle(color: Colors.white70, fontSize: 10)),
-                          Text("Z12345678", style: TextStyle(color: Colors.white, fontSize: 14)),
+                          Text("PASSPORT NUMBER",
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 10)),
+                          Text("Z12345678",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 14)),
                         ],
                       )
                     ],
@@ -97,7 +118,8 @@ class JordanPassPage extends StatelessWidget {
                     child: Container(
                       padding: const EdgeInsets.all(15),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF2D5A52), // Dark teal background from UI
+                        color: const Color(
+                            0xFF2D5A52), // Dark teal background from UI
                         borderRadius: BorderRadius.circular(15),
                       ),
                       child: Column(
@@ -105,10 +127,16 @@ class JordanPassPage extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(10),
                             color: Colors.white,
-                            child: const Icon(Icons.qr_code_2, size: 80, color: Colors.black), // Replace with actual QR
+                            child: const Icon(Icons.qr_code_2,
+                                size: 80,
+                                color: Colors.black), // Replace with actual QR
                           ),
                           const SizedBox(height: 10),
-                          const Text("SCAN FOR VERIFICATION", style: TextStyle(color: Colors.amber, fontSize: 10, fontWeight: FontWeight.bold)),
+                          const Text("SCAN FOR VERIFICATION",
+                              style: TextStyle(
+                                  color: Colors.amber,
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ),
@@ -121,15 +149,27 @@ class JordanPassPage extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("VISA STATUS", style: TextStyle(color: Colors.white70, fontSize: 10)),
-                          Text("● ACTIVE / VALID", style: TextStyle(color: Colors.greenAccent, fontSize: 12, fontWeight: FontWeight.bold)),
+                          Text("VISA STATUS",
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 10)),
+                          Text("● ACTIVE / VALID",
+                              style: TextStyle(
+                                  color: Colors.greenAccent,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold)),
                         ],
                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text("EXPIRATION DATE", style: TextStyle(color: Colors.white70, fontSize: 10)),
-                          Text("12 NOV 2025", style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                          Text("EXPIRATION DATE",
+                              style: TextStyle(
+                                  color: Colors.white70, fontSize: 10)),
+                          Text("12 NOV 2025",
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold)),
                         ],
                       ),
                     ],
@@ -142,23 +182,27 @@ class JordanPassPage extends StatelessWidget {
             ElevatedButton.icon(
               onPressed: () {},
               icon: const Icon(Icons.wallet, color: Colors.white),
-              label: const Text("Add to Wallet", style: TextStyle(color: Colors.white)),
+              label: const Text("Add to Wallet",
+                  style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: primaryBurgundy,
                 minimumSize: const Size(double.infinity, 55),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
               ),
             ),
             const SizedBox(height: 15),
             OutlinedButton.icon(
               onPressed: () {},
               icon: const Icon(Icons.stars, color: primaryBurgundy),
-              label: const Text("View Benefits", style: TextStyle(color: Colors.black87)),
+              label: const Text("View Benefits",
+                  style: TextStyle(color: Colors.black87)),
               style: OutlinedButton.styleFrom(
                 backgroundColor: lightCream,
                 side: BorderSide.none,
                 minimumSize: const Size(double.infinity, 55),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
               ),
             ),
             const SizedBox(height: 20),
@@ -172,14 +216,18 @@ class JordanPassPage extends StatelessWidget {
               ),
               child: const Row(
                 children: [
-                  CircleAvatar(backgroundColor: Color(0xFFF2E7E7), child: Icon(Icons.info_outline, color: primaryBurgundy)),
+                  CircleAvatar(
+                      backgroundColor: Color(0xFFF2E7E7),
+                      child: Icon(Icons.info_outline, color: primaryBurgundy)),
                   SizedBox(width: 15),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Rihla Premium Traveler", style: TextStyle(fontWeight: FontWeight.bold)),
-                        Text("Priority entry at 40+ historical sites", style: TextStyle(fontSize: 12, color: Colors.grey)),
+                        Text("Rihla Premium Traveler",
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                        Text("Priority entry at 40+ historical sites",
+                            style: TextStyle(fontSize: 12, color: Colors.grey)),
                       ],
                     ),
                   ),
@@ -190,18 +238,25 @@ class JordanPassPage extends StatelessWidget {
           ],
         ),
       ),
-      // Simple Bottom Navigation matching the UI
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: primaryBurgundy,
         unselectedItemColor: Colors.grey,
-        currentIndex: 2, // Set to Jordan Pass
+        currentIndex: 3,
+        onTap: (index) {
+          if (index != 3) Navigator.pushReplacementNamed(context, '/services');
+        },
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), label: "Explore"),
-          BottomNavigationBarItem(icon: Icon(Icons.card_membership), label: "Jordan Pass"),
-          BottomNavigationBarItem(icon: Icon(Icons.calendar_today_outlined), label: "Bookings"),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "Profile"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined), label: "Home"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.explore_outlined), label: "Explore"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.badge_outlined), label: "Pass"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_month_outlined), label: "Services"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline), label: "Profile"),
         ],
       ),
     );

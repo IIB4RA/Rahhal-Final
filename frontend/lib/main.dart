@@ -2,13 +2,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/favorites_provider.dart';
-import'aiAssistant_page.dart';
-import 'welcomepage.dart';        
-import 'main_wrapper.dart';       
-import 'explorPage.dart';         
-import 'hotelBoookingPage.dart';  
-import'events_page.dart';
-import'admin_page.dart';
+import 'aiAssistant_page.dart';
+import'personal_info_page.dart';
+import 'welcomepage.dart';
+import 'main_wrapper.dart';
+import 'explorPage.dart';
+import 'hotelBoookingPage.dart';
+import 'events_page.dart';
+import 'admin_page.dart';
+import 'profile.dart';
+
 void main() {
   runApp(
     ChangeNotifierProvider(
@@ -26,12 +29,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Rahhal Jordan',
-      theme: ThemeData(
-        primarySwatch: Colors.blueGrey
-      ),
-      //MainWrapper AIChatScreen 
-      home: TourismAnalyticsScreen(),
+      theme: ThemeData(primarySwatch: Colors.blueGrey),
+      //MainWrapper AIChatScreen
+      home: WelcomePage(),
     );
   }
 }
-

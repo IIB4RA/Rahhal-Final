@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
 import 'step_progress_indicator.dart';
-import 'visa_payment_page.dart';
-import 'database_offline_mode.dart';
+import 'personal_info_page.dart';
+import 'custom_bottom_nav.dart';
+//import 'database_offline_mode.dart'; 
 
 class PassportScanPage extends StatefulWidget {
   const PassportScanPage({super.key});
@@ -62,31 +63,14 @@ class _PassportScanPageState extends State<PassportScanPage> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildBody() {
     const primaryRed = Color(0xFF7B2027);
     const bgColor = Color(0xFFF5F5F5);
 
-    return Scaffold(
-      backgroundColor: bgColor,
-      appBar: AppBar(
-        backgroundColor: primaryRed,
-        title: const Text("Scan Passport",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        centerTitle: true,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: SafeArea(
-        child: Column(
+    return SafeArea(
+      child: Column(
           children: [
-            Container(
-              color: bgColor,
-              padding: const EdgeInsets.only(bottom: 15, top: 10),
-              child: const StepProgressIndicator(currentStep: 2),
-            ),
-
-            // 👈 التعديل تم هنا: أضفنا Center عشان المربع يلف على الصورة بالضبط
+            const StepProgressIndicator(currentStep: 1), 
             Expanded(
               child: Padding(
                 padding:
@@ -102,20 +86,15 @@ class _PassportScanPageState extends State<PassportScanPage> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            spreadRadius: 2,
-                          )
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              spreadRadius: 2)
                         ],
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: _image != null
-                            ? Image.file(
-                                _image!,
-                                fit: BoxFit
-                                    .cover, // الآن المربع رح يكون فت 100% مع الصورة
-                              )
+                            ? Image.file(_image!, fit: BoxFit.cover)
                             : const Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -133,143 +112,106 @@ class _PassportScanPageState extends State<PassportScanPage> {
                 ),
               ),
             ),
-
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(30)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 20,
-                    offset: const Offset(0, -5),
-                  )
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text("Passport Details",
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold)),
-                      if (_scanResult != null)
-                        Icon(Icons.check_circle, color: Colors.green[700]),
-                    ],
-                  ),
-                  const SizedBox(height: 15),
-                  if (_isLoading)
-                    const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 20),
-                      child: CircularProgressIndicator(color: primaryRed),
-                    )
-                  else if (_scanResult != null) ...[
-                    _buildDetailRow("Full Name",
-                        "${_scanResult!['given_names']} ${_scanResult!['surname']}"),
-                    _buildDetailRow("Passport No",
-                        _scanResult!['document_number']?.toString() ?? ""),
-                    _buildDetailRow(
-                        "Nationality", _scanResult!['nationality'] ?? ""),
-                    _buildDetailRow(
-                        "Date of Birth", _scanResult!['date_of_birth'] ?? ""),
-                    _buildDetailRow(
-                        "Expiry Date", _scanResult!['expiry_date'] ?? ""),
-                    _buildDetailRow("Sex", _scanResult!['sex'] ?? ""),
-                    const SizedBox(height: 15),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text("Raw MRZ Data",
-                            style: TextStyle(color: Colors.grey, fontSize: 14)),
-                        const SizedBox(height: 8),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[100],
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            _scanResult!['raw_mrz'] ?? "",
-                            style: const TextStyle(
-                              fontFamily: 'monospace',
-                              fontSize: 11,
-                              letterSpacing: 1.5,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                  ] else if (_errorMessage.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 15),
-                      child: Text(_errorMessage,
-                          style: const TextStyle(
-                              color: Colors.red, fontWeight: FontWeight.bold)),
-                    )
-                  else
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 15),
-                      child: Text(
-                          "Please upload a clear image of the passport data page.",
-                          style: TextStyle(color: Colors.grey),
-                          textAlign: TextAlign.center),
-                    ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryRed,
-                      minimumSize: const Size(double.infinity, 55),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15)),
-                    ),
-                    onPressed: () async {
-                      if (_scanResult != null) {
-                        try {
-                          await DatabaseService.instance
-                              .insertPassport(_scanResult!);
-                        } catch (e) {
-                          debugPrint(
-                              "DB Notice: Passport might already exist. $e");
-                        }
-
-                        if (context.mounted) {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      const VisaPaymentPage()));
-                        }
-                      } else {
-                        _pickAndUploadImage();
-                      }
-                    },
-                    child: Text(
-                      _scanResult != null ? "Confirm Details" : "Start AI Scan",
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildBottomPanel(primaryRed),
           ],
         ),
+      );
+   
+  }
+
+  Widget _buildBottomPanel(Color primaryRed) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, -5))
+        ],
       ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Passport Details",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              if (_scanResult != null)
+                Icon(Icons.check_circle, color: Colors.green[700]),
+            ],
+          ),
+          const SizedBox(height: 15),
+          if (_isLoading)
+            const CircularProgressIndicator(color: Color(0xFF7B2027))
+          else if (_scanResult != null) ...[
+            _buildDetailRow("Full Name",
+                "${_scanResult!['given_names']} ${_scanResult!['surname']}"),
+            _buildDetailRow("Passport No",
+                _scanResult!['document_number']?.toString() ?? ""),
+            _buildDetailRow("Nationality", _scanResult!['nationality'] ?? ""),
+            const SizedBox(height: 20),
+          ] else
+            Text(
+                _errorMessage.isNotEmpty
+                    ? _errorMessage
+                    : "Please upload a clear image.",
+                style: const TextStyle(color: Colors.grey)),
+          const SizedBox(height: 10),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryRed,
+              minimumSize: const Size(double.infinity, 55),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15)),
+            ),
+            onPressed: () {
+              if (_scanResult != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        PersonalInfoPage(passportData: _scanResult),
+                  ),
+                );
+              } else {
+                _pickAndUploadImage();
+              }
+            },
+            child: Text(
+                _scanResult != null ? "Confirm Details" : "Start AI Scan",
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF7B2027),
+        title: const Text("Scan Passport",
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+        centerTitle: true,
+        elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      body: _buildBody(),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 0),
     );
   }
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

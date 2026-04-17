@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'details_page.dart';
 import 'providers/favorites_provider.dart';
-
+import 'custom_bottom_nav.dart';
 class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
 
@@ -12,7 +12,7 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> {
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFE7E9D3),
@@ -62,6 +62,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
           ),
         ],
       ),
+      
+     
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 1), 
     );
   }
 

@@ -14,12 +14,11 @@ class _AIChatScreenState extends State<AIChatScreen> {
 
   void _sendMessage() {
     if (_controller.text.isEmpty) return;
-    
+
     setState(() {
       _messages.add(ChatMessage(text: _controller.text, isUser: true));
     });
-    
-    //Connect this function with Django API endpoint :)
+
     _controller.clear();
   }
 
@@ -27,12 +26,13 @@ class _AIChatScreenState extends State<AIChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4E9),
-     appBar: AppBar(
+      appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
+          icon:
+              const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -50,10 +50,32 @@ class _AIChatScreenState extends State<AIChatScreen> {
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
               itemCount: _messages.length,
-              itemBuilder: (context, index) => _buildChatBubble(_messages[index]),
+              itemBuilder: (context, index) =>
+                  _buildChatBubble(_messages[index]),
             ),
           ),
           _buildInputArea(),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFF8B2323),
+        unselectedItemColor: Colors.grey,
+        currentIndex: 3,
+        onTap: (index) {
+          if (index != 3) Navigator.pushReplacementNamed(context, '/services');
+        },
+        items: const [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined), label: "Home"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.explore_outlined), label: "Explore"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.badge_outlined), label: "Pass"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_month_outlined), label: "Services"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline), label: "Profile"),
         ],
       ),
     );
@@ -66,7 +88,9 @@ class _AIChatScreenState extends State<AIChatScreen> {
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: message.isUser ? const Color(0xFF702632) : const Color(0xFFE7E9D3),
+          color: message.isUser
+              ? const Color(0xFF702632)
+              : const Color(0xFFE7E9D3),
           borderRadius: BorderRadius.circular(15),
         ),
         child: Text(
@@ -80,16 +104,27 @@ class _AIChatScreenState extends State<AIChatScreen> {
   Widget _buildInputArea() {
     return Container(
       padding: const EdgeInsets.all(16),
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, -2))
+        ],
+      ),
       child: Row(
         children: [
           Expanded(
             child: TextField(
               controller: _controller,
               decoration: InputDecoration(
-                hintText: "Ask me anything...",
+                hintText: "Ask about Jordan...",
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(25),
+                  borderSide: BorderSide.none,
+                ),
                 filled: true,
-                fillColor: Colors.white,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(30), borderSide: BorderSide.none),
+                fillColor: const Color(0xFFF3F4E9),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
             ),
           ),

@@ -14,8 +14,8 @@ class StepProgressIndicator extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildStep(1, "PERSONAL", currentStep >= 1 ? activeColor : inactiveColor),
-          _buildStep(2, "PASSPORT", currentStep >= 2 ? activeColor : inactiveColor),
+          _buildStep(1, "PASSPORT", currentStep >= 1 ? activeColor : inactiveColor),
+          _buildStep(2, "PERSONAL", currentStep >= 2 ? activeColor : inactiveColor),
           _buildStep(3, "PAYMENT", currentStep >= 3 ? activeColor : inactiveColor),
           _buildStep(4, "APPROVAL", currentStep >= 4 ? activeColor : inactiveColor),
         ],

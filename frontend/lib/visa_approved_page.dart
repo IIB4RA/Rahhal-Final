@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'digitalPass.dart';
+
 class VisaApprovedPage extends StatelessWidget {
   // variable fill from backend
   final String referenceNo;
@@ -7,9 +8,9 @@ class VisaApprovedPage extends StatelessWidget {
   final String expiryDate;
 
   const VisaApprovedPage({
-    super.key, 
+    super.key,
     // Default values ​​
-    this.referenceNo = "JOR-99210-AS", 
+    this.referenceNo = "JOR-99210-AS",
     this.issueDate = "Oct 24, 2023",
     this.expiryDate = "Nov 24, 2023",
   });
@@ -19,7 +20,7 @@ class VisaApprovedPage extends StatelessWidget {
     const primaryRed = Color(0xFF7B2027);
 
     return Scaffold(
-      backgroundColor: primaryRed, 
+      backgroundColor: primaryRed,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -27,7 +28,8 @@ class VisaApprovedPage extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text("Application Status", style: TextStyle(color: Colors.white, fontSize: 16)),
+        title: const Text("Application Status",
+            style: TextStyle(color: Colors.white, fontSize: 16)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
@@ -43,7 +45,10 @@ class VisaApprovedPage extends StatelessWidget {
             const SizedBox(height: 20),
             const Text(
               "Visa Approved",
-              style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 10),
             const Text(
@@ -69,11 +74,18 @@ class VisaApprovedPage extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: const [
-                          Text("OFFICIAL DOCUMENT", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.grey)),
-                          Text("Jordanian Entry Visa", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          Text("OFFICIAL DOCUMENT",
+                              style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.grey)),
+                          Text("Jordanian Entry Visa",
+                              style: TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold)),
                         ],
                       ),
-                      Image.network('https://flagcdn.com/w80/jo.png', width: 40), // Jordanian flag
+                      Image.network('https://flagcdn.com/w80/jo.png',
+                          width: 40), // Jordanian flag
                     ],
                   ),
                   const Divider(height: 30),
@@ -87,7 +99,8 @@ class VisaApprovedPage extends StatelessWidget {
                   Row(
                     children: [
                       _buildInfoItem("Issue Date", issueDate), // from backend
-                      _buildInfoItem("Reference No.", referenceNo), // from backend
+                      _buildInfoItem(
+                          "Reference No.", referenceNo), // from backend
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -97,13 +110,17 @@ class VisaApprovedPage extends StatelessWidget {
                       //
                       onPressed: () {
                         Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const JordanPassPage()),
-  );
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const JordanPassPage()),
+                        );
                       },
-                      icon: const Icon(Icons.remove_red_eye_outlined, size: 18, color: primaryRed),
-                      label: const Text("View Digital Visa", style: TextStyle(color: primaryRed)),
-                      style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFE0E0E0))),
+                      icon: const Icon(Icons.remove_red_eye_outlined,
+                          size: 18, color: primaryRed),
+                      label: const Text("View Digital Visa",
+                          style: TextStyle(color: primaryRed)),
+                      style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFFE0E0E0))),
                     ),
                   )
                 ],
@@ -123,9 +140,12 @@ class VisaApprovedPage extends StatelessWidget {
                 children: [
                   Row(
                     children: const [
-                      Icon(Icons.confirmation_number_outlined, color: Colors.orange),
+                      Icon(Icons.confirmation_number_outlined,
+                          color: Colors.orange),
                       SizedBox(width: 10),
-                      Text("Jordan Pass", style: TextStyle(fontWeight: FontWeight.bold, color: primaryRed)),
+                      Text("Jordan Pass",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, color: primaryRed)),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -136,11 +156,12 @@ class VisaApprovedPage extends StatelessWidget {
                   const SizedBox(height: 15),
                   ElevatedButton(
                     onPressed: () {
-                        Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => const JordanPassPage()),
-  );
-                      },
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const JordanPassPage()),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: primaryRed,
@@ -154,37 +175,38 @@ class VisaApprovedPage extends StatelessWidget {
               ),
             ),
 
-const SizedBox(height: 30),
+            const SizedBox(height: 30),
 
 // back to homePage
-SizedBox(
-  width: double.infinity,
-  height: 55,
-  child: ElevatedButton(
-    onPressed: () {
-      
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    },
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.white, 
-      foregroundColor: const Color(0xFF7B2027), 
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      elevation: 2,
-    ),
-    child: const Text(
-      "Back to Home",
-      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-    ),
-  ),
-),
+            SizedBox(
+              width: double.infinity,
+              height: 55,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFF7B2027),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 2,
+                ),
+                child: const Text(
+                  "Back to Home",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+              ),
+            ),
 
-const SizedBox(height: 20),
-const Text("Having trouble? Contact Rihla Support", style: TextStyle(color: Colors.white70, fontSize: 10)),
+            const SizedBox(height: 20),
+            const Text("Having trouble? Contact Rihla Support",
+                style: TextStyle(color: Colors.white70, fontSize: 10)),
 
             const SizedBox(height: 30),
-            const Text("Having trouble? Contact Rihla Support", style: TextStyle(color: Colors.white70, fontSize: 10)),
+            const Text("Having trouble? Contact Rihla Support",
+                style: TextStyle(color: Colors.white70, fontSize: 10)),
           ],
         ),
       ),
@@ -197,7 +219,62 @@ const Text("Having trouble? Contact Rihla Support", style: TextStyle(color: Colo
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey)),
-          Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+          Text(value,
+              style:
+                  const TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
+        ],
+      ),
+    );
+  }
+}
+
+class VisaApprovedPageWithNav extends StatelessWidget {
+  final String referenceNo;
+  final String issueDate;
+  final String expiryDate;
+
+  const VisaApprovedPageWithNav({
+    super.key,
+    this.referenceNo = "JOR-99210-AS",
+    this.issueDate = "Oct 24, 2023",
+    this.expiryDate = "Nov 24, 2023",
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF7B2027),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text("Application Status",
+            style: TextStyle(color: Colors.white, fontSize: 16)),
+      ),
+      body: VisaApprovedPage(
+          referenceNo: referenceNo,
+          issueDate: issueDate,
+          expiryDate: expiryDate),
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFF8B2323),
+        unselectedItemColor: Colors.grey,
+        currentIndex: 3,
+        onTap: (index) => Navigator.pushReplacementNamed(context, '/services'),
+        items: const [
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined), label: "Home"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.explore_outlined), label: "Explore"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.badge_outlined), label: "Pass"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_month_outlined), label: "Services"),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline), label: "Profile"),
         ],
       ),
     );
