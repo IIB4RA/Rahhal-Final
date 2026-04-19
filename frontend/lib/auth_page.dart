@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'questionsPage.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+import 'home_page.dart';
 
 class AuthPage extends StatefulWidget {
   @override
@@ -9,6 +12,77 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   bool isLogin = true;
   bool rememberMe = false;
+  final TextEditingController _identifierController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
+
+  //backend connection
+  Future<bool> handleAuth() async {
+  final String identifier = _identifierController.text.trim();
+  final String password = _passwordController.text.trim();
+  final String confirmPassword = _confirmPasswordController.text.trim();
+
+  // choose endpoint
+  final String url = isLogin 
+      ? "http://127.0.0.1:8000/api/login/" 
+      : "http://127.0.0.1:8000/api/register/";
+
+
+  // Fields needed for sign in and login
+  Map<String, String> authData = {
+    "identifier": identifier,
+    "password": password,
+};
+
+
+  // Fields needed for registration 
+  if (!isLogin) {
+    authData["confirm_password"] = confirmPassword; 
+  }
+
+  try {
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {"Content-Type": "application/json"}, // Tells Django to expect JSON
+      body: jsonEncode(authData), // Converts your Dart Map into JSON
+    );
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      // Success logic
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(isLogin ? "Welcome back!" : "Account created!")),
+      );
+      return true;
+    } else {
+      print("Status Code: ${response.statusCode}");
+  
+  // 2. Print the actual message from the backend
+      print("Backend Error Message: ${response.body}"); 
+  
+  // Optional: Show the specific error in the SnackBar so you see it on your phone
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(content: Text("Error ${response.statusCode}: ${response.body}")),
+  );
+      return false;
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Error: Could not authenticate")),
+    );
+    return false;
+  }
+}
+
+
+@override
+  void dispose() {
+    // It's good practice to dispose controllers when the widget is destroyed :)
+    _identifierController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+//backend connection
 
   @override
   Widget build(BuildContext context) {
@@ -113,6 +187,7 @@ Positioned(
                     children: [
                       _label("Email / Phone"),
                       _inputField(
+                        controller: _identifierController,
                         hint: "Enter your Email / Phone here",
                         icon: Icons.phone,
                       ),
@@ -121,6 +196,7 @@ Positioned(
 
                       _label("Password"),
                       _inputField(
+                        controller: _passwordController,
                         hint: "Enter your password here",
                         icon: Icons.lock,
                         isPassword: true,
@@ -130,6 +206,7 @@ Positioned(
                         SizedBox(height: 15),
                         _label("Confirm Password"),
                         _inputField(
+                          controller: _confirmPasswordController,
                           hint: "Confirm your password",
                           icon: Icons.lock,
                           isPassword: true,
@@ -178,14 +255,28 @@ Positioned(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 40, vertical: 14),
                           ),
-                         onPressed: () {
- Navigator.pushReplacement(
-  context,
-  MaterialPageRoute(
-    builder: (_) => QuestionsPage(),
-  ),
-);
+
+//make btn functional :)                          
+onPressed: () async {
+  bool success = await handleAuth(); 
+
+  if (success) {
+    if (isLogin) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => HomePage()), 
+      );
+    } else {
+      // It was a successful SIGN UP -> Go to a Welcome/Setup page
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => UserTypePage()),
+      );
+    }
+  } 
+  // If success is false, the code does nothing (the user stays on the page) or show an error message :)
 },
+
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -256,8 +347,10 @@ Positioned(
     required String hint,
     required IconData icon,
     bool isPassword = false,
+    TextEditingController? controller,
   }) {
     return TextField(
+      controller: controller,
       obscureText: isPassword,
       decoration: InputDecoration(
         prefixIcon: Icon(icon),
