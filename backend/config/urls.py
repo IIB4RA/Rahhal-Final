@@ -9,4 +9,5 @@ urlpatterns = [
     path('api/booking/', include("apps.booking.urls")),
     path('api/passport/scan/', PassportScannerView.as_view(), name='passport_scan'),
     path('api/planner/', include("apps.planner.urls")),
+    path('api/locations/', include("apps.locations.urls")),
 ]

@@ -7,6 +7,7 @@ import 'visa_approved_page.dart';
 import 'profile.dart';
 import 'home_page.dart';
 import 'custom_bottom_nav.dart';
+import 'interactiveMap.dart';
 
 // DATA MODEL
 class UserServiceData {
@@ -137,7 +138,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
               _buildServiceIcon(context, Icons.psychology_outlined,
                   "AI Planner", const AIChatScreen()),
               _buildServiceIcon(
-                  context, Icons.map_outlined, "Smart Map", const MapPage()),
+                  context, Icons.map_outlined, "Smart Map", const MapScreen()),
               _buildServiceIcon(context, Icons.temple_buddhist_outlined,
                   "Explore", const ExploreScreen()),
               _buildServiceIcon(context, Icons.hotel_outlined, "Hotels",

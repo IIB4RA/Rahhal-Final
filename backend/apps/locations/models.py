@@ -40,3 +40,22 @@ class Transport_Option(models.Model):
     class Meta:
         db_table = 'tourism"."transport_options'
         managed = False
+
+
+
+class JordanLocation(models.Model):
+    CATEGORIES = [
+        ('HIST', 'Historical Site'),
+        ('NAT', 'Nature & Reserve'),
+        ('CITY', 'City Center'),
+    ]
+
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    category = models.CharField(max_length=4, choices=CATEGORIES, default='CITY')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
