@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'all_services_page.dart'; 
+import 'all_services_page.dart';
 import 'passport_scan_page.dart'; // Correctly imported
 import 'personal_info_page.dart';
 import 'main_wrapper.dart';
 import 'custom_bottom_nav.dart';
+import 'aiAssistant_page.dart';
 
 void main() => runApp(const RahhalApp());
 
@@ -19,7 +20,8 @@ class RahhalApp extends StatelessWidget {
     );
   }
 }
-  int _currentIndex = 0; 
+
+int _currentIndex = 0;
 
 // --- USER TYPE PAGE ---
 class UserTypePage extends StatelessWidget {
@@ -66,7 +68,8 @@ class UserTypePage extends StatelessWidget {
           minimumSize: const Size(double.infinity, 60),
           backgroundColor: Colors.white,
           foregroundColor: const Color(0xFF1A237E),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         ),
       ),
     );
@@ -86,7 +89,8 @@ class HomePage extends StatelessWidget {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
+          icon:
+              const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -126,7 +130,13 @@ class HomePage extends StatelessWidget {
                 _buildServiceCard("Visa Application", "Apply Now",
                     Icons.description, Colors.red[900]!),
                 _buildServiceCard("Plan Your Trip", "With AI",
-                    Icons.grid_view_rounded, Colors.blue[900]!),
+                    Icons.grid_view_rounded, Colors.blue[900]!, onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const AIChatScreen()),
+                  );
+                }),
                 _buildServiceCard("Book", "Hotels & Destinations",
                     Icons.location_on, Colors.teal),
                 _buildServiceCard("Digital Permit", "Unified QR Code",
@@ -164,7 +174,8 @@ class HomePage extends StatelessWidget {
           ],
         ),
       ),
-   bottomNavigationBar: const CustomBottomNav(currentIndex: 0), );
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 0),
+    );
   }
 
   Widget _buildHeroCard(BuildContext context) {
@@ -197,7 +208,6 @@ class HomePage extends StatelessWidget {
             const SizedBox(height: 10),
             ElevatedButton(
               onPressed: () {
-             
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -217,37 +227,39 @@ class HomePage extends StatelessWidget {
     );
   }
 
- 
-
   Widget _buildServiceCard(
-      String title, String subtitle, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5)
-        ],
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 28),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(title,
-                    style: const TextStyle(
-                        fontSize: 10, fontWeight: FontWeight.bold)),
-                Text(subtitle,
-                    style: TextStyle(fontSize: 8, color: Colors.red[900])),
-              ],
+      String title, String subtitle, IconData icon, Color color,
+      {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 5)
+          ],
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(title,
+                      style: const TextStyle(
+                          fontSize: 10, fontWeight: FontWeight.bold)),
+                  Text(subtitle,
+                      style: TextStyle(fontSize: 8, color: Colors.red[900])),
+                ],
+              ),
             ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -256,7 +268,7 @@ class HomePage extends StatelessWidget {
     return ElevatedButton.icon(
       onPressed: () {
         Navigator.push(
-            context, MaterialPageRoute(builder: (_) => const ServicesScreen ()));
+            context, MaterialPageRoute(builder: (_) => const ServicesScreen()));
       },
       icon: const Icon(Icons.arrow_forward_rounded, size: 18),
       label: const Text("View All Services"),

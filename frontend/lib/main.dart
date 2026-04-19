@@ -4,6 +4,7 @@ import 'package:frontend/welcomepage.dart';
 import 'package:provider/provider.dart'; 
 import 'providers/favorites_provider.dart'; 
 import 'welcomepage.dart'; 
+import'home_page.dart';
 
 void main() {
   runApp(
@@ -23,7 +24,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return  MaterialApp(
-      home: WelcomePage(),
+      home: HomePage(),
       debugShowCheckedModeBanner: false,
     );
   }
