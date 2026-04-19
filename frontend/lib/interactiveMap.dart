@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:http/http.dart' as http; // Don't forget to add http to pubspec.yaml
+import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 void main() {
@@ -30,19 +30,18 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   List<Marker> markers = [];
   
-  // NOTE: If using Android Emulator, use 10.0.2.2. 
-  // If using a real phone, use your Computer's Local IP (e.g., 192.168.1.5)
+ 
   final String apiUrl = 'http://10.0.2.2:8000/api/locations/'; 
 
   @override
   void initState() {
     super.initState();
-    fetchPlaces(); // Load existing markers from Django when app starts
+    fetchPlaces(); 
   }
 
-  // --- DATABASE FUNCTIONS ---
+  //DATABASE FUNCTIONS
 
-  // 1. GET: Load markers from Django
+  //  GET
   Future<void> fetchPlaces() async {
     try {
       final response = await http.get(Uri.parse(apiUrl));
@@ -67,14 +66,14 @@ class _MapScreenState extends State<MapScreen> {
     }
   }
 
-  // 2. POST: Save the tap location to Django
+  // POST
   Future<void> _saveLocationToDatabase(LatLng point) async {
     try {
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "title": "Jordan Location", // You can later add a TextField to change this
+          "title": "Jordan Location", 
           "latitude": point.latitude,
           "longitude": point.longitude,
           "description": "Location added from Interactive Map",
@@ -83,7 +82,7 @@ class _MapScreenState extends State<MapScreen> {
 
       if (response.statusCode == 201) {
         debugPrint("Saved to Database!");
-        fetchPlaces(); // Refresh the map to show the new marker
+        fetchPlaces(); 
       }
     } catch (e) {
       debugPrint("Error saving location: $e");
@@ -96,7 +95,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // --- UI BUILD ---
+  // UI BUILD 
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +121,7 @@ class _MapScreenState extends State<MapScreen> {
         children: [
           TileLayer(
             urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            // FIX FOR 403 ERROR: Identifying the app to OpenStreetMap
+            
             userAgentPackageName: 'com.rahhal.jordan_map', 
           ),
           MarkerLayer(markers: markers),
