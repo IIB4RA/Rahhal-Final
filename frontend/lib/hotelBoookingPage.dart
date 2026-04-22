@@ -1,47 +1,58 @@
 import 'package:flutter/material.dart';
-import 'models/hotel_model.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'auth_service.dart';
+
+import 'api_service.dart';
 
 class HotelBookingScreen extends StatelessWidget {
   const HotelBookingScreen({super.key});
 
+ Future<dynamic> fetchHotels() async {
+    try {
+      final data = await ApiService().request(
+        method: 'GET',
+        endpoint: '/tourism/hotel/', 
+        requiresAuth: true,
+      );
+      return data;
+      } catch (e) {
+        print("Backend Connection Error: $e");
+        throw e;
+       }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // will replace this with API call
-    final List<Hotel> hotels = [
-      Hotel(
-        id: "1",
-        name: "Al Maha Luxury Resort",
-        location: "Downtown",
-        rating: 4.9,
-        reviews: 1240,
-        price: "420",
-        distance: "0.8 km from you",
-        imageUrl:
-            "https://images.unsplash.com/photo-1566073771259-6a8506099945",
-      ),
-      Hotel(
-        id: "2",
-        name: "Urban Oasis Suites",
-        location: "Business Bay",
-        rating: 4.7,
-        reviews: 850,
-        price: "215",
-        distance: "2.4 km from you",
-        imageUrl:
-            "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b",
-      ),
-      Hotel(
-        id: "3",
-        name: "The Palm Marina Hotel",
-        location: "Palm Jumeirah",
-        rating: 4.8,
-        reviews: 2100,
-        price: "385",
-        distance: "5.1 km from you",
-        imageUrl: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb",
-        isTopRated: true,
-      ),
-    ];
+    return FutureBuilder<dynamic>(
+    future: fetchHotels(), 
+    builder: (context, snapshot) {
+      
+      // While waiting for the backend
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
+
+      if (snapshot.hasError) {
+        return Scaffold(
+            body: Center(child: Text("Error loading hotels: ${snapshot.error}")));
+      }
+
+      final data = snapshot.data;
+      List<dynamic> hotelsList = [];
+
+      // Extract the data (the 'body')
+      if (data is List) {
+        hotelsList = data;
+      } else if (data is Map && data.containsKey('results')) {
+        hotelsList = data['results'] as List<dynamic>;
+      }
+
+  if (hotelsList.isEmpty) {
+    return const Scaffold(body: Center(child: Text("No hotels available")));
+  }
+      
+
 
     return Scaffold(
       backgroundColor: const Color(0xFFE7E9D3),
@@ -74,13 +85,18 @@ class HotelBookingScreen extends StatelessWidget {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: hotels.length,
-              itemBuilder: (context, index) => _buildHotelCard(hotels[index]),
+              itemCount: hotelsList.length,
+              itemBuilder: (context, index) {
+                final hotelMap = hotelsList[index] as Map<String, dynamic>;
+                return _buildHotelCard(hotelMap);
+              },
             ),
           ),
         ],
       ),
       bottomNavigationBar: _buildBottomNav(),
+    );
+    }
     );
   }
 
@@ -150,7 +166,7 @@ class HotelBookingScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHotelCard(Hotel hotel) {
+  Widget _buildHotelCard(Map<String, dynamic> hotel) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -163,10 +179,19 @@ class HotelBookingScreen extends StatelessWidget {
               ClipRRect(
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(16)),
-                child: Image.network(hotel.imageUrl,
-                    height: 200, width: double.infinity, fit: BoxFit.cover),
+                child: Image.network(
+                  hotel['imageUrl'] ?? 'https://via.placeholder.com/400x200?text=No+Image',
+                  height: 200,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    height: 200,
+                    color: Colors.grey[300],
+                    child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                  ),
+                ),
               ),
-              if (hotel.isTopRated)
+              if (hotel['stars'] == true)
                 Positioned(
                   top: 12,
                   left: 12,
@@ -202,10 +227,10 @@ class HotelBookingScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(hotel.name,
+                    Text(hotel['name_en'] ?? 'Unknown Hotel',
                         style: const TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold)),
-                    Text("\$${hotel.price}",
+                    Text("\$${hotel['price_per_night'] ?? '0'}",
                         style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -216,7 +241,7 @@ class HotelBookingScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                        "${hotel.rating} (${hotel.reviews} reviews) • ${hotel.location}",
+                        "${hotel['rating'] ?? '0'} (${hotel['reviews'] ?? '0'} reviews) • ${hotel['location'] ?? 'Unknown Location'}",
                         style:
                             const TextStyle(fontSize: 12, color: Colors.grey)),
                     const Text("per night",
@@ -230,7 +255,8 @@ class HotelBookingScreen extends StatelessWidget {
                     Row(children: [
                       const Icon(Icons.location_on_outlined,
                           size: 16, color: Colors.brown),
-                      Text(hotel.distance, style: const TextStyle(fontSize: 11))
+                      Text(hotel['distance'] ?? 'Distance N/A',
+                          style: const TextStyle(fontSize: 11))
                     ]),
                     ElevatedButton(
                       onPressed:
