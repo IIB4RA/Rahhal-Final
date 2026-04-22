@@ -45,12 +45,13 @@ dependencies:
   provider: ^6.1.2
   flutter_markdown: ^0.7.7+1
   url_launcher: 6.3.1
-  
-  
-  
-  
-  
-  # For the offline local database
+  flutter_secure_storage: ^9.2.2
+   
+   
+   
+   
+   
+   # For the offline local database
 
  
   
