@@ -3,14 +3,44 @@ import 'personal_info_page.dart';
 import 'digitalPass.dart';
 import 'visa_approved_page.dart';
 import 'custom_bottom_nav.dart';
+import 'api_service.dart';
+
+
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
+
+ Future<Map<String, dynamic>> fetchProfileData() async {
+    try {
+      final data = await ApiService().request(
+        method: 'GET',
+        endpoint: '/me/', 
+        requiresAuth: true,
+      );
+      return data;
+      } catch (e) {
+        print("Backend Connection Error: $e");
+        throw e;
+       }
+  }
 
   @override
   Widget build(BuildContext context) {
     const Color primaryRed = Color(0xFF8B2635);
     const Color backgroundBeige = Color(0xFFF9F7F0);
     const Color cardBackground = Colors.white;
+
+    return FutureBuilder<Map<String, dynamic>?>(
+    future: fetchProfileData(), 
+    builder: (context, snapshot) {
+      
+      // While waiting for the backend
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
+
+      // Extract the data (the 'body')
+      final userData = snapshot.data;
 
     return Scaffold(
       backgroundColor: backgroundBeige,
@@ -49,8 +79,10 @@ class ProfileScreen extends StatelessWidget {
                     child: Icon(Icons.person, size: 50, color: Colors.white),
                   ),
                   const SizedBox(height: 12),
-                  const Text(
-                    'Alex Johnson', // Placeholder for name
+                   Text(
+                    (userData?['full_name'] != null && userData!['full_name'].toString().isNotEmpty)
+                    ? userData!['full_name']
+                    : 'User', // Placeholder for name
                     style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -161,6 +193,8 @@ class ProfileScreen extends StatelessWidget {
         ),
       ),
      bottomNavigationBar: const CustomBottomNav(currentIndex: 4),
+    );
+  }
     );
   }
 }
