@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 
 import 'home_page.dart';
+import 'api_service.dart';
+import 'auth_service.dart';
 
 class AuthPage extends StatefulWidget {
   @override
@@ -12,6 +12,7 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   bool isLogin = true;
   bool rememberMe = false;
+  bool _isLoading = false;
   final TextEditingController _identifierController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
@@ -21,12 +22,6 @@ class _AuthPageState extends State<AuthPage> {
   final String identifier = _identifierController.text.trim();
   final String password = _passwordController.text.trim();
   final String confirmPassword = _confirmPasswordController.text.trim();
-
-  // choose endpoint
-  final String url = isLogin 
-      ? "http://127.0.0.1:8000/api/login/" 
-      : "http://127.0.0.1:8000/api/register/";
-
 
   // Fields needed for sign in and login
   Map<String, String> authData = {
@@ -40,38 +35,29 @@ class _AuthPageState extends State<AuthPage> {
     authData["confirm_password"] = confirmPassword; 
   }
 
+  final endpoint = isLogin? '/login/' : '/register/';
+  
   try {
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {"Content-Type": "application/json"}, // Tells Django to expect JSON
-      body: jsonEncode(authData), // Converts your Dart Map into JSON
-    );
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      // Success logic
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(isLogin ? "Welcome back!" : "Account created!")),
+    final data = await ApiService().request(
+      method: 'post',
+      endpoint: endpoint, 
+      data: authData,
+      requiresAuth: false,
       );
-      return true;
-    } else {
-      print("Status Code: ${response.statusCode}");
-  
-  // 2. Print the actual message from the backend
-      print("Backend Error Message: ${response.body}"); 
-  
-  // Optional: Show the specific error in the SnackBar so you see it on your phone
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text("Error ${response.statusCode}: ${response.body}")),
-  );
+      
+      // Save tokens and preference to secure storage
+      if (data != null && data['access_token'] != null) {
+        await saveRememberMe(rememberMe);
+        await saveTokens(data['access_token'], data['refresh_token']);
+        return true;
+      }
       return false;
-    }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Error: Could not authenticate")),
-    );
-    return false;
+    } catch (e) {
+        print("Backend Connection Error: $e");
+        throw e;
+       }
+  
   }
-}
 
 
 @override
@@ -255,29 +241,43 @@ Positioned(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 40, vertical: 14),
                           ),
-
-//make btn functional :)                          
-onPressed: () async {
-  bool success = await handleAuth(); 
-
-  if (success) {
-    if (isLogin) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => HomePage()), 
-      );
-    } else {
-      // It was a successful SIGN UP -> Go to a Welcome/Setup page
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => UserTypePage()),
-      );
-    }
-  } 
-  // If success is false, the code does nothing (the user stays on the page) or show an error message :)
-},
-
-                          child: Row(
+                          onPressed: _isLoading ? null : () async {
+                            setState(() => _isLoading = true);
+                            try {
+                              bool success = await handleAuth();
+                              if (success && mounted) {
+                                if (isLogin) {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => HomePage()),
+                                  );
+                                } else {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => UserTypePage()),
+                                  );
+                                }
+                              }
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(e.toString().replaceAll("Exception: ", "")),
+                                    backgroundColor: Colors.redAccent,
+                                  ),
+                                );
+                              }
+                            } finally {
+                              if (mounted) setState(() => _isLoading = false);
+                            }
+                          },
+                          child: _isLoading 
+                            ? const SizedBox(
+                                height: 20, 
+                                width: 20, 
+                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                              )
+                            : Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
