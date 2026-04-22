@@ -1,7 +1,7 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Location
-from .serializers import LocationSerializer
+from .models import JordanLocation
+#from .serializers import LocationSerializer
 
 @api_view(['GET', 'POST'])
 def locations(request):
