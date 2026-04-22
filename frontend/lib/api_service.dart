@@ -13,7 +13,7 @@ class ApiService {
 
   ApiService._internal();
 
-  final String _baseUrl = "192.168.1.22:8000";
+  final String _baseUrl = "10.0.2.2:8000";
   final storage = const FlutterSecureStorage();
 
   // The primary method to handle all requests
@@ -22,7 +22,7 @@ class ApiService {
     required String endpoint,
     Map<String, dynamic>? data,
     Map<String, String>? queryParams,
-    bool requiresAuth = true, 
+    bool requiresAuth = true,
   }) async {
     final uri = Uri.http(_baseUrl, "/api$endpoint", queryParams);
 
@@ -47,10 +47,12 @@ class ApiService {
           response = await http.get(uri, headers: headers);
           break;
         case 'POST':
-          response = await http.post(uri, headers: headers, body: jsonEncode(data));
+          response =
+              await http.post(uri, headers: headers, body: jsonEncode(data));
           break;
         case 'PUT':
-          response = await http.put(uri, headers: headers, body: jsonEncode(data));
+          response =
+              await http.put(uri, headers: headers, body: jsonEncode(data));
           break;
         case 'DELETE':
           response = await http.delete(uri, headers: headers);
@@ -78,20 +80,23 @@ class ApiService {
       storage.delete(key: 'token_expiry');
 
       navigatorKey.currentState?.pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => AuthPage()),
-    (route) => false, // This clears the navigation stack so they can't go back
-  );
+        MaterialPageRoute(builder: (_) => AuthPage()),
+        (route) =>
+            false, // This clears the navigation stack so they can't go back
+      );
       throw Exception("Session expired. Please login again.");
     } else {
       // Extract the most relevant error message from the response body
       String message = "Error: ${response.statusCode}";
       if (body is Map) {
-        message = body['message'] ?? body['detail'] ?? body['error'] ?? body.values.first.toString();
+        message = body['message'] ??
+            body['detail'] ??
+            body['error'] ??
+            body.values.first.toString();
       } else if (body is String) {
         message = body;
       }
       throw Exception(message);
     }
   }
-
 }

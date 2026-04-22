@@ -25,24 +25,21 @@ class _AIChatScreenState extends State<AIChatScreen> {
       _messages.add(ChatMessage(text: userText, isUser: true));
       _isLoading = true;
     });
-
     _controller.clear();
     _scrollToBottom();
 
     try {
-      final url = Uri.parse('http://127.0.0.1:8000/api/planner/generate/');
+      final url = Uri.parse('http://10.0.2.2:8000/api/planner/generate/');
       List<Map<String, String>> historyPayload = _messages
           .take(_messages.length - 1)
           .map((m) =>
               {"role": m.isUser ? "user" : "assistant", "content": m.text})
           .toList();
-
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json; charset=UTF-8'},
         body: jsonEncode({'prompt': userText, 'history': historyPayload}),
       );
-
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         if (data['success'] == true) {

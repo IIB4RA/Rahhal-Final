@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'home_page.dart';
 import 'api_service.dart';
 import 'auth_service.dart';
@@ -13,39 +12,36 @@ class _AuthPageState extends State<AuthPage> {
   bool isLogin = true;
   bool rememberMe = false;
   bool _isLoading = false;
+
   final TextEditingController _identifierController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
-  //backend connection
   Future<bool> handleAuth() async {
-  final String identifier = _identifierController.text.trim();
-  final String password = _passwordController.text.trim();
-  final String confirmPassword = _confirmPasswordController.text.trim();
+    final String identifier = _identifierController.text.trim();
+    final String password = _passwordController.text.trim();
+    final String confirmPassword = _confirmPasswordController.text.trim();
 
-  // Fields needed for sign in and login
-  Map<String, String> authData = {
-    "identifier": identifier,
-    "password": password,
-};
+    Map<String, String> authData = {
+      "identifier": identifier,
+      "password": password,
+    };
 
+    if (!isLogin) {
+      authData["confirm_password"] = confirmPassword;
+    }
 
-  // Fields needed for registration 
-  if (!isLogin) {
-    authData["confirm_password"] = confirmPassword; 
-  }
+    final endpoint = isLogin ? '/login/' : '/register/';
 
-  final endpoint = isLogin? '/login/' : '/register/';
-  
-  try {
-    final data = await ApiService().request(
-      method: 'post',
-      endpoint: endpoint, 
-      data: authData,
-      requiresAuth: false,
+    try {
+      final data = await ApiService().request(
+        method: 'post',
+        endpoint: endpoint,
+        data: authData,
+        requiresAuth: false,
       );
-      
-      // Save tokens and preference to secure storage
+
       if (data != null && data['access_token'] != null) {
         await saveRememberMe(rememberMe);
         await saveTokens(data['access_token'], data['refresh_token']);
@@ -53,22 +49,17 @@ class _AuthPageState extends State<AuthPage> {
       }
       return false;
     } catch (e) {
-        print("Backend Connection Error: $e");
-        throw e;
-       }
-  
+      rethrow;
+    }
   }
 
-
-@override
+  @override
   void dispose() {
-    // It's good practice to dispose controllers when the widget is destroyed :)
     _identifierController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
-//backend connection
 
   @override
   Widget build(BuildContext context) {
@@ -77,95 +68,82 @@ class _AuthPageState extends State<AuthPage> {
       body: SafeArea(
         child: Column(
           children: [
-           Stack(
-  children: [
-    //Background Image
-   Container(
-  height:280,
-  width: double.infinity,
-  decoration: BoxDecoration(
-    image: DecorationImage(
-      image: AssetImage("assets/images/signinLoginPHOTO.jpg"),
-      fit: BoxFit.cover,
-      colorFilter: ColorFilter.mode(
-        Colors.black.withOpacity(0.4), 
-        BlendMode.darken,
-      ),
-    ),
-  ),
-),
-
-//returnARROW
-Positioned(
-      top: 10,
-      left: 10,
-      child: SafeArea(
-        child: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 28),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
-    ),
-
-   //welcom section
-    Positioned.fill(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            isLogin ? "Welcome again !" : "Welcome !",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 33,
-              fontWeight: FontWeight.bold,
+            Stack(
+              children: [
+                Container(
+                  height: 280,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage("assets/images/signinLoginPHOTO.jpg"),
+                      fit: BoxFit.cover,
+                      colorFilter: ColorFilter.mode(
+                        Colors.black.withOpacity(0.4),
+                        BlendMode.darken,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: SafeArea(
+                    child: IconButton(
+                      icon: Icon(Icons.arrow_back_ios_new,
+                          color: Colors.white, size: 28),
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                ),
+                Positioned.fill(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        isLogin ? "Welcome again !" : "Welcome !",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 33,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        isLogin
+                            ? "Your journey awaits"
+                            : "Start your unforgettable journey in Jordan.",
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+                Positioned(
+                  bottom: 25,
+                  left: 20,
+                  right: 20,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Row(
+                      children: [
+                        _buildToggleButton("LOGIN", true),
+                        _buildToggleButton("SIGNUP", false),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-
-           // TextUnderWelcome
-          SizedBox(height: 8),
-          Text(
-            isLogin
-                ? "Your journey awaits"
-                : "Start your unforgettable journey in Jordan.",
-            style: TextStyle(color: Colors.white70,fontSize: 14,),
-          ),
-        ],
-      ),
-    ),
-
-  
-    Positioned(
-      bottom: 25, 
-      left: 20,
-      right: 20,
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(30),
-        ),
-        child: Row(
-          children: [
-            _buildToggleButton("LOGIN", true),
-            _buildToggleButton("SIGNUP", false),
-          ],
-        ),
-      ),
-    ),
-  ],
-),
-
-           
-
-            //FORM
             Expanded(
               child: Container(
                 padding: EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Color(0xffEAE3D2),
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(0)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(0)),
                 ),
                 child: SingleChildScrollView(
                   child: Column(
@@ -177,9 +155,7 @@ Positioned(
                         hint: "Enter your Email / Phone here",
                         icon: Icons.phone,
                       ),
-
                       SizedBox(height: 15),
-
                       _label("Password"),
                       _inputField(
                         controller: _passwordController,
@@ -187,7 +163,6 @@ Positioned(
                         icon: Icons.lock,
                         isPassword: true,
                       ),
-
                       if (!isLogin) ...[
                         SizedBox(height: 15),
                         _label("Confirm Password"),
@@ -198,10 +173,7 @@ Positioned(
                           isPassword: true,
                         ),
                       ],
-
                       SizedBox(height: 10),
-
-                      // Remember & Forgot
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -222,14 +194,12 @@ Positioned(
                           if (isLogin)
                             Text(
                               "Forgot Password?",
-                              style: TextStyle(color: Color.fromRGBO(124, 33, 49, 1)),
+                              style: TextStyle(
+                                  color: Color.fromRGBO(124, 33, 49, 1)),
                             ),
                         ],
                       ),
-
                       SizedBox(height: 15),
-
-                      // BUTTON Continue||CreateAccount
                       Center(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -241,53 +211,62 @@ Positioned(
                             padding: EdgeInsets.symmetric(
                                 horizontal: 40, vertical: 14),
                           ),
-                          onPressed: _isLoading ? null : () async {
-                            setState(() => _isLoading = true);
-                            try {
-                              bool success = await handleAuth();
-                              if (success && mounted) {
-                                if (isLogin) {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => HomePage()),
-                                  );
-                                } else {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => UserTypePage()),
-                                  );
-                                }
-                              }
-                            } catch (e) {
-                              if (mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(e.toString().replaceAll("Exception: ", "")),
-                                    backgroundColor: Colors.redAccent,
-                                  ),
-                                );
-                              }
-                            } finally {
-                              if (mounted) setState(() => _isLoading = false);
-                            }
-                          },
-                          child: _isLoading 
-                            ? const SizedBox(
-                                height: 20, 
-                                width: 20, 
-                                child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                              )
-                            : Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                isLogin ? "Continue" : "Create account",
-                                style: TextStyle(fontSize: 16),
-                              ),
-                              SizedBox(width: 10),
-                              Icon(Icons.arrow_forward),
-                            ],
-                          ),
+                          onPressed: _isLoading
+                              ? null
+                              : () async {
+                                  setState(() => _isLoading = true);
+                                  try {
+                                    bool success = await handleAuth();
+                                    if (success && mounted) {
+                                      if (isLogin) {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) => HomePage()),
+                                        );
+                                      } else {
+                                        Navigator.pushReplacement(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: (_) => UserTypePage()),
+                                        );
+                                      }
+                                    }
+                                  } catch (e) {
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                          content: Text(e
+                                              .toString()
+                                              .replaceAll("Exception: ", "")),
+                                          backgroundColor: Colors.redAccent,
+                                        ),
+                                      );
+                                    }
+                                  } finally {
+                                    if (mounted)
+                                      setState(() => _isLoading = false);
+                                  }
+                                },
+                          child: _isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                      color: Colors.white, strokeWidth: 2),
+                                )
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      isLogin ? "Continue" : "Create account",
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                    SizedBox(width: 10),
+                                    Icon(Icons.arrow_forward),
+                                  ],
+                                ),
                         ),
                       ),
                     ],
@@ -301,7 +280,6 @@ Positioned(
     );
   }
 
-  // Login/Signup Switcher 
   Widget _buildToggleButton(String text, bool loginState) {
     return Expanded(
       child: GestureDetector(
@@ -331,7 +309,6 @@ Positioned(
     );
   }
 
-  // Label
   Widget _label(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 6),
@@ -342,7 +319,6 @@ Positioned(
     );
   }
 
-  // Input Field
   Widget _inputField({
     required String hint,
     required IconData icon,
@@ -357,8 +333,7 @@ Positioned(
         hintText: hint,
         filled: true,
         fillColor: Colors.white,
-        suffixIcon:
-            isPassword ? Icon(Icons.visibility_off) : null,
+        suffixIcon: isPassword ? Icon(Icons.visibility_off) : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),

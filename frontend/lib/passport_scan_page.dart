@@ -6,7 +6,6 @@ import 'package:http/http.dart' as http;
 import 'step_progress_indicator.dart';
 import 'personal_info_page.dart';
 import 'custom_bottom_nav.dart';
-//import 'database_offline_mode.dart'; 
 
 class PassportScanPage extends StatefulWidget {
   const PassportScanPage({super.key});
@@ -35,7 +34,6 @@ class _PassportScanPageState extends State<PassportScanPage> {
       _scanResult = null;
       _errorMessage = '';
     });
-
     try {
       var request = http.MultipartRequest('POST', Uri.parse(kApiUrl));
       request.files
@@ -66,57 +64,54 @@ class _PassportScanPageState extends State<PassportScanPage> {
   Widget _buildBody() {
     const primaryRed = Color(0xFF7B2027);
     const bgColor = Color(0xFFF5F5F5);
-
     return SafeArea(
       child: Column(
-          children: [
-            const StepProgressIndicator(currentStep: 1), 
-            Expanded(
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Center(
-                  child: GestureDetector(
-                    onTap: _isLoading ? null : _pickAndUploadImage,
-                    child: Container(
-                      width: double.infinity,
-                      constraints: const BoxConstraints(minHeight: 220),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              spreadRadius: 2)
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: _image != null
-                            ? Image.file(_image!, fit: BoxFit.cover)
-                            : const Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.document_scanner_outlined,
-                                      color: Colors.grey, size: 60),
-                                  SizedBox(height: 10),
-                                  Text("Tap to upload passport",
-                                      style: TextStyle(
-                                          color: Colors.grey, fontSize: 16)),
-                                ],
-                              ),
-                      ),
+        children: [
+          const StepProgressIndicator(currentStep: 1),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Center(
+                child: GestureDetector(
+                  onTap: _isLoading ? null : _pickAndUploadImage,
+                  child: Container(
+                    width: double.infinity,
+                    constraints: const BoxConstraints(minHeight: 220),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            spreadRadius: 2)
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: _image != null
+                          ? Image.file(_image!, fit: BoxFit.cover)
+                          : const Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.document_scanner_outlined,
+                                    color: Colors.grey, size: 60),
+                                SizedBox(height: 10),
+                                Text("Tap to upload passport",
+                                    style: TextStyle(
+                                        color: Colors.grey, fontSize: 16)),
+                              ],
+                            ),
                     ),
                   ),
                 ),
               ),
             ),
-            _buildBottomPanel(primaryRed),
-          ],
-        ),
-      );
-   
+          ),
+          _buildBottomPanel(primaryRed),
+        ],
+      ),
+    );
   }
 
   Widget _buildBottomPanel(Color primaryRed) {

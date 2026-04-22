@@ -9,7 +9,6 @@ import 'home_page.dart';
 import 'custom_bottom_nav.dart';
 import 'interactiveMap.dart';
 
-// DATA MODEL
 class UserServiceData {
   final String name;
   final String validity;
@@ -22,7 +21,6 @@ class UserServiceData {
   });
 }
 
-// MAIN SCREEN
 class ServicesScreen extends StatefulWidget {
   const ServicesScreen({super.key});
 
@@ -32,7 +30,6 @@ class ServicesScreen extends StatefulWidget {
 
 class _ServicesScreenState extends State<ServicesScreen> {
   int _currentIndex = 3;
-
   late UserServiceData userData;
 
   @override
@@ -47,7 +44,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    const Color primaryRed = Color(0xFF8B2323);
     const Color bgColor = Color(0xFFF2F4E8);
 
     return Scaffold(
@@ -71,7 +67,7 @@ class _ServicesScreenState extends State<ServicesScreen> {
         ),
       ),
       body: _buildBody(),
-     bottomNavigationBar: const CustomBottomNav(currentIndex: 3),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 3),
     );
   }
 
@@ -99,7 +95,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
     }
   }
 
-  // Logic to switch between the main Services view and placeholders
   Widget _buildBody() {
     if (_currentIndex != 3) {
       return Center(
@@ -187,7 +182,6 @@ class _ServicesScreenState extends State<ServicesScreen> {
   }
 }
 
-// REUSABLE HERITAGE CARD
 class HeritageCard extends StatelessWidget {
   final UserServiceData data;
   const HeritageCard({super.key, required this.data});
@@ -258,7 +252,6 @@ class HeritageCard extends StatelessWidget {
   }
 }
 
-// SERVICE PAGES (Placeholders)
 class VisaPage extends StatelessWidget {
   const VisaPage({super.key});
   @override
