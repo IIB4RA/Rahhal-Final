@@ -1,32 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import 'package:frontend/home_page.dart';
+import 'package:provider/provider.dart';
 import 'providers/favorites_provider.dart';
-import 'auth_service.dart';
-import 'auth_page.dart';
-import 'home_page.dart';
-import 'admin_page.dart';
 import 'aiAssistant_page.dart';
-import 'personal_info_page.dart';
+import'personal_info_page.dart';
 import 'welcomepage.dart';
 import 'main_wrapper.dart';
 import 'explorPage.dart';
 import 'hotelBoookingPage.dart';
 import 'events_page.dart';
+import 'admin_page.dart';
 import 'profile.dart';
+import "home_page.dart";
+import 'auth_page.dart';
+import "auth_service.dart";
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final storage = const FlutterSecureStorage(
-  webOptions: WebOptions(
-    dbName: 'RahhalStorage',
-    publicKey: 'RahhalKey',
-  ),
-);
+  final storage = const FlutterSecureStorage();
   bool remember = await shouldRememberMe();
   String? accessToken = await storage.read(key: 'access_token');
 
@@ -34,40 +31,29 @@ Future<void> main() async {
     await logout();
   }
 
-  Widget initialPage =
-      (remember && accessToken != null) ? HomePage() : AuthPage();
+  Widget initialPage = (remember && accessToken != null) ?  HomePage() :  AuthPage();
 
   runApp(
-    MultiProvider(
+   MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => FavoritesProvider()),
       ],
-      child: MyApp(initialPage: initialPage),
+      child: MaterialApp(
+        home: initialPage,
+        navigatorKey: navigatorKey,
+      ),
     ),
   );
 }
 
 class MyApp extends StatelessWidget {
-  final Widget initialPage;
-
-  const MyApp({super.key, required this.initialPage});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< Updated upstream
-    return MaterialApp(
-      navigatorKey: navigatorKey,
-=======
     return  MaterialApp(
-      home: HomePage(),
->>>>>>> Stashed changes
+      home: WelcomePage(),
       debugShowCheckedModeBanner: false,
-      title: 'Rahhal App',
-      theme: ThemeData(
-        primaryColor: const Color(0xFF8B2635),
-        useMaterial3: true,
-      ),
-      home: initialPage,
     );
   }
 }
