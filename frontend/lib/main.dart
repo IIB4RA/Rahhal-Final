@@ -54,8 +54,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< Updated upstream
     return MaterialApp(
       navigatorKey: navigatorKey,
+=======
+    return  MaterialApp(
+      home: HomePage(),
+>>>>>>> Stashed changes
       debugShowCheckedModeBanner: false,
       title: 'Rahhal App',
       theme: ThemeData(
