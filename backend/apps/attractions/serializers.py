@@ -62,10 +62,10 @@ class TourSerializer(serializers.ModelSerializer):
         fields = (
             'id',
             'region_id',
-            'operator_id'
+            'operator_id',
             "region_name_en",
             "region_name_ar",
-            'operator_name'
+            'operator_name',
             'name_en',
             'name_ar',
             'description_en',
@@ -93,7 +93,7 @@ class EventSerializer(serializers.ModelSerializer):
             'name_en',
             'name_ar',
             'description_en',
-            'description_an',
+            'description_ar',
             'location',
             'latitude',
             'longitude',

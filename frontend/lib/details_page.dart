@@ -119,7 +119,7 @@ class DetailsPage extends StatelessWidget {
       children: [
         ...List.generate(5, (index) => const Icon(Icons.star, color: Colors.amber, size: 20)),
         const SizedBox(width: 8),
-        Text("${attraction['rating']} (12k reviews)", style: const TextStyle(fontWeight: FontWeight.bold)),
+        Text("${attraction['rating']} (${attraction['reviews']} reviews)", style: const TextStyle(fontWeight: FontWeight.bold)),
         const Spacer(),
         const Icon(Icons.bookmark_border, size: 28),
       ],
@@ -129,9 +129,9 @@ class DetailsPage extends StatelessWidget {
   Widget _buildInfoCards() {
     return Row(
       children: [
-        _infoBox(Icons.access_time, "VISITING HOURS", "06:00 AM - 06:00 PM"),
+        _infoBox(Icons.access_time, "More details", attraction['details']),
         const SizedBox(width: 12),
-        _infoBox(Icons.confirmation_number_outlined, "ENTRY PRICE", "50 JOD / \$70 USD"),
+        _infoBox(Icons.confirmation_number_outlined, "ENTRY PRICE", attraction['price']),
       ],
     );
   }
