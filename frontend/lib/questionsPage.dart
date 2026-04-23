@@ -153,7 +153,7 @@ class _QuestionsPageState extends State<QuestionsPage> {
               ),
               onPressed: () {
                 // go to SelectTypePage
-                 Navigator.push(context, MaterialPageRoute(builder: (_) => SelectTypePage()));
+                 Navigator.push(context, MaterialPageRoute(builder: (_) => UserTypePage()));
               },
               child: Row(
                 mainAxisSize: MainAxisSize.min,

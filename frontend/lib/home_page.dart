@@ -9,7 +9,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'aiAssistant_page.dart';
 
-void main() => runApp(const RahhalApp());
+/*void main() => runApp(const RahhalApp());
 
 class RahhalApp extends StatelessWidget {
   const RahhalApp({super.key});
@@ -28,7 +28,7 @@ class UserTypePage extends StatelessWidget {
   const UserTypePage({super.key});
 
   Future<bool> handleRole(BuildContext context, String role) async {
-    final String url = "http://10.0.2.2:8000/api/role/";
+    final String url = "http://192.168.43.152:8000/api/role/";
     try {
       final tokenData = await getValidAccessToken();
       if (tokenData == null) return false;
@@ -107,7 +107,7 @@ class UserTypePage extends StatelessWidget {
       ),
     );
   }
-}
+} */
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

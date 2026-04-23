@@ -4,7 +4,7 @@ import 'explorPage.dart';
 import 'passport_scan_page.dart';
 import 'all_services_page.dart'; 
 import 'profile.dart';
-
+import 'user_type_page.dart';
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
 

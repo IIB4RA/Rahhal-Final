@@ -13,7 +13,7 @@ class ApiService {
 
   ApiService._internal();
 
-  final String _baseUrl = "10.0.2.2:8000";
+  final String _baseUrl = "192.168.43.152:8000";
   final storage = const FlutterSecureStorage();
 
   // The primary method to handle all requests

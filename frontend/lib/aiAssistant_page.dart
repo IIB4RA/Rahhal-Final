@@ -29,7 +29,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
     _scrollToBottom();
 
     try {
-      final url = Uri.parse('http://10.0.2.2:8000/api/planner/generate/');
+      final url = Uri.parse('http://192.168.43.152:8000/api/planner/generate/');
       List<Map<String, String>> historyPayload = _messages
           .take(_messages.length - 1)
           .map((m) =>
@@ -89,15 +89,23 @@ class _AIChatScreenState extends State<AIChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4E9),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
+       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         centerTitle: true,
-        title: const Text("RAHHAL PRO",
-            style: TextStyle(
-                color: Color(0xFF8B2323),
-                fontWeight: FontWeight.bold,
-                fontSize: 16)),
+        leading: IconButton(
+          icon:
+              const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          "Rahhal ChatBot",
+          style: TextStyle(
+            color: Color(0xFF8B2323),
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
       body: Column(
         children: [

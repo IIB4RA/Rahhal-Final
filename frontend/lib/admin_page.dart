@@ -34,7 +34,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     setState(() => _isLoading = true);
     try {
       final response = await http.get(Uri.parse(
-          'http://10.0.2.2:8000/api/admin/analytics/?region=$_selectedRegion'));
+          'http://192.168.43.152:8000/api/admin/analytics/?region=$_selectedRegion'));
 
       if (response.statusCode == 200) {
         setState(() {
@@ -303,7 +303,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           const SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: () =>
-                launchUrl(Uri.parse('http://10.0.2.2:8000/api/admin/export/')),
+                launchUrl(Uri.parse('http://192.168.43.152:8000/api/admin/export/')),
             style: ElevatedButton.styleFrom(
                 backgroundColor: zadGold, foregroundColor: Colors.black),
             icon: const Icon(Icons.file_download_outlined),

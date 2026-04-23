@@ -5,9 +5,10 @@ import 'hotelBoookingPage.dart';
 import 'passport_scan_page.dart';
 import 'visa_approved_page.dart';
 import 'profile.dart';
-import 'home_page.dart';
+import 'user_type_page.dart';
 import 'custom_bottom_nav.dart';
 import 'interactiveMap.dart';
+
 
 class UserServiceData {
   final String name;

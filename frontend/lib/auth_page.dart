@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'home_page.dart';
+import 'questionsPage.dart';
 import 'api_service.dart';
 import 'auth_service.dart';
+import 'user_type_page.dart';
 
 class AuthPage extends StatefulWidget {
   @override
@@ -222,7 +223,7 @@ class _AuthPageState extends State<AuthPage> {
                                         Navigator.pushReplacement(
                                           context,
                                           MaterialPageRoute(
-                                              builder: (_) => HomePage()),
+                                              builder: (_) => QuestionsPage()),
                                         );
                                       } else {
                                         Navigator.pushReplacement(

@@ -21,7 +21,12 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final storage = const FlutterSecureStorage();
+  final storage = const FlutterSecureStorage(
+  webOptions: WebOptions(
+    dbName: 'RahhalStorage',
+    publicKey: 'RahhalKey',
+  ),
+);
   bool remember = await shouldRememberMe();
   String? accessToken = await storage.read(key: 'access_token');
 
