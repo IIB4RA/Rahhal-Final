@@ -25,24 +25,21 @@ class _AIChatScreenState extends State<AIChatScreen> {
       _messages.add(ChatMessage(text: userText, isUser: true));
       _isLoading = true;
     });
-
     _controller.clear();
     _scrollToBottom();
 
     try {
-      final url = Uri.parse('http://127.0.0.1:8000/api/planner/generate/');
+      final url = Uri.parse('http://192.168.43.152:8000/api/planner/generate/');
       List<Map<String, String>> historyPayload = _messages
           .take(_messages.length - 1)
           .map((m) =>
               {"role": m.isUser ? "user" : "assistant", "content": m.text})
           .toList();
-
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json; charset=UTF-8'},
         body: jsonEncode({'prompt': userText, 'history': historyPayload}),
       );
-
       if (response.statusCode == 200) {
         final data = jsonDecode(utf8.decode(response.bodyBytes));
         if (data['success'] == true) {
@@ -92,15 +89,23 @@ class _AIChatScreenState extends State<AIChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4E9),
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0.5,
+       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         centerTitle: true,
-        title: const Text("RAHHAL PRO",
-            style: TextStyle(
-                color: Color(0xFF8B2323),
-                fontWeight: FontWeight.bold,
-                fontSize: 16)),
+        leading: IconButton(
+          icon:
+              const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          "Rahhal ChatBot",
+          style: TextStyle(
+            color: Color(0xFF8B2323),
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
       body: Column(
         children: [

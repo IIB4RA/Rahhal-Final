@@ -28,8 +28,9 @@ Future<void> _saveTokensWithExpiry(String access, String refresh) async {
 
   bool remember = await shouldRememberMe();
 
-  final duration = remember ? const Duration(days: 7) : const Duration(minutes: 30);
-  
+  final duration =
+      remember ? const Duration(days: 7) : const Duration(minutes: 30);
+
   final expiryTime = DateTime.now().add(duration).toIso8601String();
   await storage.write(key: _tokenExpiryKey, value: expiryTime);
 }
@@ -38,7 +39,7 @@ Future<void> saveTokens(String access, String refresh) async {
   await _saveTokensWithExpiry(access, refresh);
 }
 
-// Expiry Check 
+// Expiry Check
 Future<bool> _isTokenExpired() async {
   final storage = const FlutterSecureStorage();
   final expiryStr = await storage.read(key: _tokenExpiryKey);
@@ -59,7 +60,7 @@ Future<bool> _refreshTokens() async {
 
   try {
     final response = await http.post(
-      Uri.parse("http:// 192.168.1.22:8000/api/refresh/"),
+      Uri.parse("http://192.168.1.22:8000/api/refresh/"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({'refresh': refresh}),
     );
@@ -70,11 +71,10 @@ Future<bool> _refreshTokens() async {
       return true;
     }
   } catch (e) {
-    return false; 
+    return false;
   }
   return false;
 }
-
 
 Future<Map<String, String>?> getValidAccessToken() async {
   final storage = const FlutterSecureStorage();
@@ -85,7 +85,7 @@ Future<Map<String, String>?> getValidAccessToken() async {
 
   if (await _isTokenExpired()) {
     // This only attempts refresh if "Remember Me" is true
-    final refreshed = await _refreshTokens(); 
+    final refreshed = await _refreshTokens();
     if (refreshed) {
       access = await storage.read(key: _accessTokenKey);
       refresh = await storage.read(key: _refreshTokenKey);
@@ -96,10 +96,11 @@ Future<Map<String, String>?> getValidAccessToken() async {
   } else {
     // If they ARE remembered, extend the window by 7 days every time they use it
     if (await shouldRememberMe()) {
-      final newExpiry = DateTime.now().add(const Duration(days: 7)).toIso8601String();
+      final newExpiry =
+          DateTime.now().add(const Duration(days: 7)).toIso8601String();
       await storage.write(key: _tokenExpiryKey, value: newExpiry);
     }
-      }
+  }
 
   return {'access': access!, 'refresh': refresh!};
 }

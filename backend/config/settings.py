@@ -9,15 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-fallback-key-for-dev')
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-DEBUG = True
-
 ALLOWED_HOSTS = ['*']
-
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:8080",
-    "http://127.0.0.1:8000",
-    "http://192.168.1.15:8000", 
-]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -40,6 +32,8 @@ INSTALLED_APPS = [
     'apps.booking',
     'apps.locations',
     'apps.payment',
+    'apps.admin',      
+    'apps.analytics',  
 ]
 
 MIDDLEWARE = [
@@ -52,6 +46,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.analytics.middleware.AnalyticsMiddleware', 
 ]
 
 ROOT_URLCONF = 'config.urls'

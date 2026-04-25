@@ -31,7 +31,7 @@ Future<void> main() async {
     await logout();
   }
 
-  Widget initialPage = (remember && accessToken != null) ?  HomePage() :  AuthPage();
+  Widget initialPage = (remember && accessToken != null) ?  HomePage() :  WelcomePage();
 
   runApp(
    MultiProvider(

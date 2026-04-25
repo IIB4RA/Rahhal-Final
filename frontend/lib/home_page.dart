@@ -1,17 +1,15 @@
 import 'package:flutter/material.dart';
 import 'all_services_page.dart';
-import 'passport_scan_page.dart'; // Correctly imported
+import 'passport_scan_page.dart';
 import 'personal_info_page.dart';
 import 'main_wrapper.dart';
 import 'custom_bottom_nav.dart';
 import "auth_service.dart";
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import 'aiAssistant_page.dart';
 
-
-void main() => runApp(const RahhalApp());
+/*void main() => runApp(const RahhalApp());
 
 class RahhalApp extends StatelessWidget {
   const RahhalApp({super.key});
@@ -26,68 +24,37 @@ class RahhalApp extends StatelessWidget {
   }
 }
 
-int _currentIndex = 0;
-
-// --- USER TYPE PAGE ---
 class UserTypePage extends StatelessWidget {
   const UserTypePage({super.key});
 
   Future<bool> handleRole(BuildContext context, String role) async {
-    final String url = "http://127.0.0.1:8000/api/role/";
-
-
-
+    final String url = "http://192.168.43.152:8000/api/role/";
     try {
-
-      // 2. Get the token (Django usually protects profile updates)
-
       final tokenData = await getValidAccessToken();
-
       if (tokenData == null) return false;
 
-
-
       final response = await http.post(
-
         Uri.parse(url),
-
         headers: {
-
           "Content-Type": "application/json",
-
           "Authorization": "Bearer ${tokenData['access']}",
-
         },
-
         body: jsonEncode({"role": role}),
-
       );
 
-
-
       if (response.statusCode == 200 || response.statusCode == 201) {
-
         return true;
-
       } else {
-
         ScaffoldMessenger.of(context).showSnackBar(
-
           SnackBar(content: Text("Error: ${response.body}")),
-
         );
-
         return false;
-
       }
-
     } catch (e) {
-
       return false;
-
     }
-}
- 
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -104,7 +71,8 @@ class UserTypePage extends StatelessWidget {
                   color: Color(0xFF8B2323)),
             ),
             const SizedBox(height: 30),
-            _buildTypeButton(context, "Tourist", "tourist", Icons.flight_takeoff),
+            _buildTypeButton(
+                context, "Tourist", "tourist", Icons.flight_takeoff),
             _buildTypeButton(context, "Resident", "resident", Icons.home_work),
             _buildTypeButton(context, "Operator", "operator", Icons.map),
           ],
@@ -113,20 +81,20 @@ class UserTypePage extends StatelessWidget {
     );
   }
 
-  Widget _buildTypeButton(BuildContext context, String label, String dbValue, IconData icon) {
+  Widget _buildTypeButton(
+      BuildContext context, String label, String dbValue, IconData icon) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 40),
       child: ElevatedButton.icon(
         onPressed: () async {
-        bool success = await handleRole(context, dbValue);
-        
-        if (success) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
-        }
-      },
+          bool success = await handleRole(context, dbValue);
+          if (success) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+          }
+        },
         icon: Icon(icon),
         label: Text(label),
         style: ElevatedButton.styleFrom(
@@ -139,12 +107,10 @@ class UserTypePage extends StatelessWidget {
       ),
     );
   }
-}
+} */
 
-// --- HOME PAGE ---
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
-  
 
   @override
   Widget build(BuildContext context) {

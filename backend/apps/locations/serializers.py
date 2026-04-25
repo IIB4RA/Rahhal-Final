@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Transport_Option
+from .models import Transport_Option, JordanLocation 
 
 class TransportOptionSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,3 +14,8 @@ class TransportOptionSerializer(serializers.ModelSerializer):
             'is_active',
         )
         read_only_fields = fields
+
+class JordanLocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JordanLocation
+        fields = '__all__'

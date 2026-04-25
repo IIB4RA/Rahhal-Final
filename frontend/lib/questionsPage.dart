@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'selectTypePage.dart';
+import 'api_service.dart';
 
 class QuestionsPage extends StatefulWidget {
   @override
@@ -10,9 +11,36 @@ class QuestionsPage extends StatefulWidget {
 class _QuestionsPageState extends State<QuestionsPage> {
   //default selected values
   String interest = "Relaxation";
-  String travelWith = "Friends";
+  String travelWith = "Solo";
   String budget = "Normal Budget";
   String places = "Historical sites";
+
+  Future<bool> preferences() async {
+    Map<String, dynamic> prefData = {
+    "interests": interest,
+    "travel_style": travelWith,
+    "budget_range": budget,
+    "preferred_places": places,
+  };
+  
+  final endpoint = '/preferences/'; 
+  try {
+    final response = await ApiService().request(
+      method: 'post',
+      endpoint: endpoint,
+      data: prefData,
+      requiresAuth: true, 
+    );
+
+    if (response != null) {
+      return true;
+    }
+    return false;
+  } catch (e) {
+    print("Error saving preferences: $e");
+    return false;
+  }
+}
 
   
   final Color backgroundColor= Color(0xffEAE3D2); 
@@ -151,10 +179,23 @@ class _QuestionsPageState extends State<QuestionsPage> {
                 padding: EdgeInsets.symmetric(horizontal: 27, vertical: 12),
                 elevation: 4,
               ),
-              onPressed: () {
-                // go to SelectTypePage
-                 Navigator.push(context, MaterialPageRoute(builder: (_) => SelectTypePage()));
-              },
+              onPressed: () async {
+                bool success = await preferences();
+
+                if (success) {
+                  Navigator.push(
+                  context, 
+                  MaterialPageRoute(builder: (_) => UserTypePage())
+                  );
+                } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                content: Text("Failed to save preferences. Please check your connection."),
+                backgroundColor: darkMaroon,
+        ),
+      );
+    }
+  },
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,

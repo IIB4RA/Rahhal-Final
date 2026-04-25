@@ -3,7 +3,6 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 import 'home_page.dart'; 
-import 'api_service.dart';
 
 void main() => runApp(const RahhalApp());
 
@@ -23,22 +22,62 @@ class RahhalApp extends StatelessWidget {
 class UserTypePage extends StatelessWidget {
   const UserTypePage({super.key});
 
-  Future<bool> handleRole(BuildContext context, String dbValue) async {
-    final endpoint = '/role/';
+final storage = const FlutterSecureStorage(
+  webOptions: WebOptions(
+    dbName: 'RahhalStorage',
+    publicKey: 'RahhalKey',
+  ),
+);
+ 
+  Future<Map<String, dynamic>?> getValidAccessToken() async {
+    try {
+      
+      String? token = await storage.read(key: 'access_token');
+      
+      if (token != null) {
+        return {'access': token};
+      }
+    } catch (e) {
+      debugPrint("Error reading token: $e");
+    }
+    return null;
+  }
 
-    Map<String, dynamic> roleData = {"role": dbValue};
+  Future<bool> handleRole(BuildContext context, String role) async {
+    // 10.0.2.2 is the alias for the 127.0.0.1 on your dev machine for Android Emulator
+   final String url = "http://localhost:8000/api/role/";
     
     try {
-      final response = await ApiService().request(
-        method: 'PATCH',
-        endpoint: endpoint,
-        data: roleData, 
-        requiresAuth: true, 
+      final tokenData = await getValidAccessToken();
+      
+      if (tokenData == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("No session found. Please login again.")),
+        );
+        return false;
+      }
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer ${tokenData['access']}",
+        },
+        body: jsonEncode({"role": role}),
       );
 
-      return response != null;
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        return true;
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Server Error: ${response.statusCode}")),
+        );
+        return false;
+      }
     } catch (e) {
-      print("Error saving role: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Connection failed: $e")),
+      );
       return false;
     }
   }
@@ -75,20 +114,13 @@ class UserTypePage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 40),
       child: ElevatedButton.icon(
         onPressed: () async {
-          // Call handleRole with the specific value (tourist, resident, etc.)
+          // Show a loading indicator if needed
           bool success = await handleRole(context, dbValue);
-          
           if (success) {
             if (context.mounted) {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const HomePage()),
-              );
-            }
-          } else {
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Failed to set role. Please try again.")),
               );
             }
           }

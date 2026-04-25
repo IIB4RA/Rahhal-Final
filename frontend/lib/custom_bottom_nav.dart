@@ -4,7 +4,7 @@ import 'explorPage.dart';
 import 'passport_scan_page.dart';
 import 'all_services_page.dart'; 
 import 'profile.dart';
-
+import 'user_type_page.dart';
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
 
@@ -35,7 +35,7 @@ class CustomBottomNav extends StatelessWidget {
 
     Widget page;
     switch (index) {
-      case 0: page = const UserTypePage(); break;
+      case 0: page = const HomePage(); break;
       case 1: page = const ExploreScreen(); break;
       case 2: page = const PassportScanPage(); break;
       case 3: page = const ServicesScreen(); break;

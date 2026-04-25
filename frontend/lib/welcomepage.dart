@@ -13,13 +13,11 @@ class _WelcomePageState extends State<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
-  
     return Scaffold(
       body: Stack(
-        fit: StackFit.expand, 
+        fit: StackFit.expand,
         children: [
-          
-          //bgImage 
+          //bgImage
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -28,8 +26,7 @@ class _WelcomePageState extends State<WelcomePage> {
               ),
             ),
           ),
-          
-        
+
           Align(
             alignment: Alignment.bottomCenter,
             child: Container(
@@ -44,26 +41,21 @@ class _WelcomePageState extends State<WelcomePage> {
             ),
           ),
 
-          
           SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween, 
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  
-                
                   Align(
                     alignment: Alignment.topRight,
                     child: _buildLanguageSelector(),
                   ),
-
-                 
                   Column(
-                    mainAxisSize: MainAxisSize.min, 
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      //WELCOMETitle 
+                      //WELCOMETitle
                       _buildWelcomeTitle(),
 
                       SizedBox(height: 18),
@@ -74,7 +66,7 @@ class _WelcomePageState extends State<WelcomePage> {
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.white, fontSize: 13),
                       ),
-                      
+
                       SizedBox(height: 50),
 
                       // Second text
@@ -86,10 +78,10 @@ class _WelcomePageState extends State<WelcomePage> {
                           fontSize: 14,
                         ),
                       ),
-                      
+
                       SizedBox(height: 35),
 
-                      //BUTTONS 
+                      //BUTTONS
                       //Sign In
                       _buildMainButton(
                         text: "Sign In",
@@ -97,7 +89,7 @@ class _WelcomePageState extends State<WelcomePage> {
                         textColor: Colors.white,
                         icon: Icons.login_outlined,
                         onPressed: () {
-                          _navigateToAuth(isLogin: true); 
+                          _navigateToAuth(isLogin: true);
                         },
                       ),
 
@@ -107,14 +99,14 @@ class _WelcomePageState extends State<WelcomePage> {
                       _buildMainButton(
                         text: "Create Account",
                         color: Colors.white,
-                        textColor: Color(0xff7C2131), 
+                        textColor: Color(0xff7C2131),
                         icon: Icons.person_add_outlined,
                         onPressed: () {
-                          _navigateToAuth(isLogin: false); 
+                          _navigateToAuth(isLogin: false);
                         },
                       ),
-                      
-                      SizedBox(height: 20), 
+
+                      SizedBox(height: 20),
                     ],
                   ),
                 ],
@@ -127,30 +119,29 @@ class _WelcomePageState extends State<WelcomePage> {
   }
 
   // //WELCOMETitle fullcode
- Widget _buildWelcomeTitle() {
-  return RichText(
-    textAlign: TextAlign.center,
-    text: TextSpan(
-      style: TextStyle(color: Colors.white, fontSize: 28.5, fontWeight: FontWeight.bold),
-      children: [
-        TextSpan(text: "WELCOME TO "),
-        TextSpan(
-          text: "RAHHAL",
-          style: TextStyle(
-            
-            shadows: [
-              Shadow(
-                color: Color(0xFF80152B), 
-                offset: Offset(4,4),  
-                blurRadius: 14      
-              ),
-            ],
+  Widget _buildWelcomeTitle() {
+    return RichText(
+      textAlign: TextAlign.center,
+      text: TextSpan(
+        style: TextStyle(
+            color: Colors.white, fontSize: 28.5, fontWeight: FontWeight.bold),
+        children: [
+          TextSpan(text: "WELCOME TO "),
+          TextSpan(
+            text: "RAHHAL",
+            style: TextStyle(
+              shadows: [
+                Shadow(
+                    color: Color(0xFF80152B),
+                    offset: Offset(4, 4),
+                    blurRadius: 14),
+              ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
   //language switcher
   Widget _buildLanguageSelector() {
@@ -177,14 +168,12 @@ class _WelcomePageState extends State<WelcomePage> {
               selectedLanguage = newValue!;
 
               // I will Add logic here later
-              
             });
           },
         ),
       ),
     );
   }
-
 
   Widget _buildMainButton({
     required String text,
@@ -194,8 +183,8 @@ class _WelcomePageState extends State<WelcomePage> {
     required VoidCallback onPressed,
   }) {
     return SizedBox(
-      width: double.infinity, 
-      height: 55, 
+      width: double.infinity,
+      height: 55,
       child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
           backgroundColor: color,
@@ -217,12 +206,13 @@ class _WelcomePageState extends State<WelcomePage> {
 
   //  NAVIGATION logic
   void _navigateToAuth({required bool isLogin}) {
-    
     Navigator.push(
       context,
       MaterialPageRoute(
-   
-        builder: (context) => AuthPage(), 
+        builder: (context) => AuthPage(
+          initialIsLogin: isLogin,
+          selectedLanguage: this.selectedLanguage == 'English' ? 'en' : 'ar',
+        ),
       ),
     );
   }

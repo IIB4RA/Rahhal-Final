@@ -31,7 +31,7 @@ class _MapScreenState extends State<MapScreen> {
   List<Marker> markers = [];
   
  
-  final String apiUrl = 'http://10.0.2.2:8000/api/locations/'; 
+  final String apiUrl = 'http://192.168.43.152:8000/api/locations/'; 
 
   @override
   void initState() {
@@ -100,7 +100,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
+      /*appBar: AppBar(
         title: const Text("Jordan Interactive Map"),
         backgroundColor: Colors.blueGrey,
         actions: [
@@ -109,6 +109,24 @@ class _MapScreenState extends State<MapScreen> {
             icon: const Icon(Icons.refresh)
           )
         ],
+      ),*/
+       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        centerTitle: true,
+        leading: IconButton(
+          icon:
+              const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          "Jordan Interactive Map",
+          style: TextStyle(
+            color: Color(0xFF8B2323),
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ),
       body: FlutterMap(
         options: MapOptions(
