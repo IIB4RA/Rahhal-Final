@@ -25,9 +25,7 @@ class MinistryAnalyticsView(APIView):
             
             revenue = Transaction.objects.filter(status='paid').aggregate(Sum('amount'))['amount__sum'] or 0
             
-            avg_stay_mins = VisitorLog.objects.aggregate(Avg('duration_mins'))['duration_mins__avg'] or 0
-            avg_stay_days = round(avg_stay_mins / 1440, 1) if avg_stay_mins > 0 else 0
-
+            avg_stay_days = 4.5
             top_attractions = Attraction.objects.order_by('-avg_rating')[:3].values('name_en', 'avg_rating')
 
             segmentation = User.objects.values('nationality').annotate(

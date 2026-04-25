@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'providers/visa_application_provider.dart';
+import 'api_service.dart';
 import 'visa_payment_page.dart';
+import 'utils/country_data.dart';
 
 class PersonalInfoPage extends StatefulWidget {
-  // data comes from the pass_scan page
   final Map<String, dynamic>? passportData;
-
   const PersonalInfoPage({super.key, this.passportData});
 
   @override
@@ -12,23 +14,28 @@ class PersonalInfoPage extends StatefulWidget {
 }
 
 class _PersonalInfoPageState extends State<PersonalInfoPage> {
-  // Controllers for the form fields
+  final _formKey = GlobalKey<FormState>();
+  bool _isSubmitting = false;
+
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _passportNoController = TextEditingController();
   final TextEditingController _arrivalDateController = TextEditingController();
-  final TextEditingController _departureDateController = TextEditingController();
+  final TextEditingController _departureDateController =
+      TextEditingController();
 
+  DateTime? _selectedArrivalDate;
   String? _selectedNationality;
   String? _selectedPurpose = "Tourism & Leisure";
 
-  final List<String> _purposes = ["Tourism & Leisure", "Business", "Medical", "Visit"];
-  final List<String> _nationalities = ["Jordanian", "Saudi Arabian", "Moroccan", "Qatari", "Egyptian", "United States"];
-
+  final List<String> _purposes = [
+    "Tourism & Leisure",
+    "Business",
+    "Medical",
+    "Visit"
+  ];
 
   static const Color primaryMaroon = Color(0xFF7B2027);
   static const Color bgCream = Color(0xFFF3F1E5);
-  static const Color borderLight = Color(0xFFE0DCC8);
-  static const Color textGrey = Color(0xFF7D7D7D);
 
   @override
   void initState() {
@@ -36,26 +43,70 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
     _fillDataFromScan();
   }
 
-  //  function maps data 
   void _fillDataFromScan() {
     if (widget.passportData != null) {
       final data = widget.passportData!;
-      
-      _fullNameController.text = "${data['given_names'] ?? ""} ${data['surname'] ?? ""}".trim();
+      _fullNameController.text =
+          "${data['given_names'] ?? ""} ${data['surname'] ?? ""}".trim();
       _passportNoController.text = data['document_number']?.toString() ?? "";
-      
-      
-      if (data['nationality'] != null) {
-        String scannedNationality = data['nationality'].toString().toLowerCase();
-        
-        
-        Iterable<String> matches = _nationalities.where(
-          (n) => n.toLowerCase().contains(scannedNationality)
-        );
 
+      if (data['nationality'] != null) {
+        String code = data['nationality'].toString().toUpperCase();
         setState(() {
-          _selectedNationality = matches.isNotEmpty ? matches.first : null;
+          if (CountryData.isoToName.containsKey(code)) {
+            _selectedNationality = CountryData.isoToName[code];
+          } else {
+            _selectedNationality =
+                CountryData.allNationalities.cast<String?>().firstWhere(
+                      (n) => n!.toUpperCase().contains(code),
+                      orElse: () => null,
+                    );
+          }
         });
+      }
+    }
+  }
+
+  Future<void> _submitApplication() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSubmitting = true);
+
+    final visaProvider =
+        Provider.of<VisaApplicationProvider>(context, listen: false);
+    visaProvider.updatePersonalInfo(
+      name: _fullNameController.text,
+      passNumber: _passportNoController.text,
+      nat: _selectedNationality,
+      arrival: _arrivalDateController.text,
+      departure: _departureDateController.text,
+      purp: _selectedPurpose,
+    );
+
+    try {
+      await ApiService().request(
+        method: 'PATCH',
+        endpoint: '/me/',
+        data: visaProvider.toJson(),
+        requiresAuth: true,
+      );
+
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const VisaPaymentPage()));
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isSubmitting = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("DB Error: $e"),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 6),
+          ),
+        );
+        debugPrint("==== DB REJECTION REASON ====\n$e");
       }
     }
   }
@@ -64,252 +115,166 @@ class _PersonalInfoPageState extends State<PersonalInfoPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgCream,
-       appBar: AppBar(
+      appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          "Rahhal – Heritage Guide",
-          style: TextStyle(
-            color: Color(0xFF8B2323),
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+        title: const Text("Personal Information",
+            style: TextStyle(
+                color: primaryMaroon,
+                fontSize: 16,
+                fontWeight: FontWeight.bold)),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            
-            Container(
-              color: bgCream,
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildStepCircle("1", "PASSPORT", false, isCompleted: true), 
-                  _buildStepLine(isCompleted: true),
-                  _buildStepCircle("2", "PERSONAL", true), 
-                  _buildStepLine(isCompleted: false),
-                  _buildStepCircle("3", "PAYMENT", false),
-                  _buildStepLine(isCompleted: false),
-                  _buildStepCircle("4", "APPROVAL", false),
-                ],
-              ),
-            ),
-
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Personal Information",
-                    style: TextStyle(color: primaryMaroon, fontSize: 22, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    "Please ensure all details match your official passport exactly.",
-                    style: TextStyle(color: Color(0xFF91A3B0), fontSize: 13),
-                  ),
-                  const SizedBox(height: 25),
-
-                  _buildInputLabel(Icons.person_outline, "Full Name"),
-                  _buildTextField(_fullNameController, "Enter your full name"),
-
-                  _buildInputLabel(Icons.public, "Nationality"),
-                  _buildDropdown(_selectedNationality, _nationalities, (val) => setState(() => _selectedNationality = val)),
-
-                  _buildInputLabel(Icons.badge_outlined, "Passport Number"),
-                  _buildTextField(_passportNoController, "e.g. A12345678"),
-
-                  _buildInputLabel(Icons.calendar_month_outlined, "Intended Arrival Date"),
-                  _buildDateField(_arrivalDateController, "mm/dd/yyyy"),
-
-                  _buildInputLabel(Icons.calendar_month_outlined, "Departure Date"),
-                  _buildDateField(_departureDateController, "mm/dd/yyyy"),
-
-                  _buildInputLabel(Icons.info_outline, "Purpose of Visit"),
-                  _buildDropdown(_selectedPurpose, _purposes, (val) => setState(() => _selectedPurpose = val)),
-
-                  const SizedBox(height: 20),
-
-                  // Info Box
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF9F3F3),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: primaryMaroon.withOpacity(0.1)),
-                    ),
-                    child: const Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(Icons.info, color: primaryMaroon, size: 20),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            "A single entry tourist visa for Jordan is valid for 1 month from the date of issue.",
-                            style: TextStyle(fontSize: 11, color: Colors.black54),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 30),
-
-                  // Submit Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 55,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryMaroon,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      onPressed: () {
-  
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const VisaPaymentPage(),
-    ),
-  );
-},
-                      child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text("Continue to Payment", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
-                          SizedBox(width: 10),
-                          Icon(Icons.arrow_forward, color: Colors.white, size: 20),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  //UI Helpers 
-
-  Widget _buildStepCircle(String number, String label, bool isActive, {bool isCompleted = false}) {
-    return Column(
-      children: [
-        Container(
-          width: 30,
-          height: 30,
-          decoration: BoxDecoration(
-            color: isActive || isCompleted ? primaryMaroon : Colors.white,
-            shape: BoxShape.circle,
-            border: Border.all(color: isActive || isCompleted ? primaryMaroon : borderLight, width: 2),
-          ),
-          child: Center(
-            child: isCompleted 
-              ? const Icon(Icons.check, size: 16, color: Colors.white)
-              : Text(
-                  number,
-                  style: TextStyle(color: isActive ? Colors.white : textGrey, fontWeight: FontWeight.bold, fontSize: 12),
-                ),
+        padding: const EdgeInsets.all(20),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              _buildField(
+                  "Full Name", _fullNameController, Icons.person_outline),
+              const SizedBox(height: 15),
+              _buildDropdown(
+                  "Nationality",
+                  _selectedNationality,
+                  CountryData.allNationalities,
+                  (v) => setState(() => _selectedNationality = v)),
+              const SizedBox(height: 15),
+              _buildField("Passport Number", _passportNoController,
+                  Icons.badge_outlined),
+              const SizedBox(height: 15),
+              _buildArrivalPicker(),
+              const SizedBox(height: 15),
+              _buildDeparturePicker(),
+              const SizedBox(height: 15),
+              _buildDropdown("Purpose of Visit", _selectedPurpose, _purposes,
+                  (v) => setState(() => _selectedPurpose = v)),
+              const SizedBox(height: 35),
+              _buildSubmitButton(),
+            ],
           ),
         ),
-        const SizedBox(height: 4),
-        Text(label, style: TextStyle(color: isActive || isCompleted ? primaryMaroon : textGrey, fontSize: 9, fontWeight: FontWeight.bold)),
-      ],
-    );
-  }
-
-  Widget _buildStepLine({required bool isCompleted}) {
-    return Container(width: 30, height: 2, color: isCompleted ? primaryMaroon : borderLight);
-  }
-
-  Widget _buildInputLabel(IconData icon, String label) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8, top: 15),
-      child: Row(
-        children: [
-          Icon(icon, size: 16, color: primaryMaroon),
-          const SizedBox(width: 6),
-          Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Color(0xFF4A4A4A))),
-        ],
       ),
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        hintText: hint,
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 15, vertical: 12),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: borderLight)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: primaryMaroon)),
-      ),
+  // اختيار تاريخ الوصول
+  Widget _buildArrivalPicker() {
+    return _buildDatePicker("Intended Arrival Date", _arrivalDateController,
+        firstDate: DateTime.now(), onPicked: (date) {
+      setState(() {
+        _selectedArrivalDate = date;
+        _departureDateController.clear();
+      });
+    });
+  }
+
+  Widget _buildDeparturePicker() {
+    return _buildDatePicker(
+      _selectedArrivalDate == null
+          ? "Select Arrival First"
+          : "Departure Date (Max 30 days)",
+      _departureDateController,
+      enabled: _selectedArrivalDate != null,
+      firstDate:
+          _selectedArrivalDate?.add(const Duration(days: 1)) ?? DateTime.now(),
+      lastDate: _selectedArrivalDate
+          ?.add(const Duration(days: 30)), // هنا تحديد الـ 30 يوم
+      onPicked: (date) {},
     );
   }
 
-  Widget _buildDateField(TextEditingController controller, String hint) {
-    return TextField(
-      controller: controller,
+  Widget _buildDatePicker(String label, TextEditingController ctrl,
+      {required DateTime firstDate,
+      DateTime? lastDate,
+      bool enabled = true,
+      required Function(DateTime) onPicked}) {
+    return TextFormField(
+      controller: ctrl,
       readOnly: true,
+      enabled: enabled,
+      validator: (v) => v!.isEmpty ? 'Required' : null,
       onTap: () async {
         DateTime? picked = await showDatePicker(
           context: context,
-          initialDate: DateTime.now(),
-          firstDate: DateTime.now(),
-          lastDate: DateTime(2030),
+          initialDate: firstDate,
+          firstDate: firstDate,
+          lastDate: lastDate ?? DateTime(2030),
         );
         if (picked != null) {
-          setState(() => controller.text = "${picked.month}/${picked.day}/${picked.year}");
+          setState(() => ctrl.text =
+              "${picked.year}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}");
+          onPicked(picked);
         }
       },
       decoration: InputDecoration(
-        hintText: hint,
+        labelText: label,
+        prefixIcon:
+            const Icon(Icons.calendar_month, color: primaryMaroon, size: 20),
         filled: true,
-        fillColor: Colors.white,
-        suffixIcon: const Icon(Icons.calendar_today, size: 18, color: primaryMaroon),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: borderLight)),
-        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: const BorderSide(color: primaryMaroon)),
+        fillColor: enabled ? Colors.white : Colors.grey.shade200,
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none),
       ),
     );
   }
 
-  Widget _buildDropdown(String? value, List<String> items, ValueChanged<String?> onChanged) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: borderLight),
+  Widget _buildField(String label, TextEditingController ctrl, IconData icon) {
+    return TextFormField(
+      controller: ctrl,
+      validator: (v) => v!.isEmpty ? 'Required field' : null,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: primaryMaroon, size: 20),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: items.contains(value) ? value : null, 
-          isExpanded: true,
-          hint: const Text("Select option", style: TextStyle(fontSize: 14, color: Colors.black26)),
-          icon: const Icon(Icons.keyboard_arrow_down, color: primaryMaroon),
-          items: items.map((e) => DropdownMenuItem(
-            value: e, 
-            child: Text(e, style: const TextStyle(fontSize: 14))
-          )).toList(),
-          onChanged: onChanged,
-        ),
+    );
+  }
+
+  Widget _buildDropdown(String label, String? val, List<String> items,
+      Function(String?) onChanged) {
+    return DropdownButtonFormField<String>(
+      value: val,
+      onChanged: onChanged,
+      validator: (v) => v == null ? 'Required' : null,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: const Icon(Icons.public, color: primaryMaroon, size: 20),
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide.none),
+      ),
+      items: items
+          .map((e) => DropdownMenuItem(
+              value: e, child: Text(e, style: const TextStyle(fontSize: 13))))
+          .toList(),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return SizedBox(
+      width: double.infinity,
+      height: 55,
+      child: ElevatedButton(
+        style: ElevatedButton.styleFrom(
+            backgroundColor: primaryMaroon,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15))),
+        onPressed: _isSubmitting ? null : _submitApplication,
+        child: _isSubmitting
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Text("Continue to Payment",
+                style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold)),
       ),
     );
   }

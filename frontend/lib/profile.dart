@@ -1,27 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'providers/visa_application_provider.dart';
 import 'personal_info_page.dart';
 import 'digitalPass.dart';
 import 'visa_approved_page.dart';
 import 'custom_bottom_nav.dart';
 import 'api_service.dart';
 
-
-
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
- Future<Map<String, dynamic>> fetchProfileData() async {
+  Future<Map<String, dynamic>> fetchProfileData() async {
     try {
       final data = await ApiService().request(
         method: 'GET',
-        endpoint: '/me/', 
+        endpoint: '/me/',
         requiresAuth: true,
       );
       return data;
-      } catch (e) {
-        print("Backend Connection Error: $e");
-        throw e;
-       }
+    } catch (e) {
+      debugPrint("Backend Connection Error: $e");
+      throw e;
+    }
+  }
+
+  String _getFormattedExpiry(String? arrivalDateStr) {
+    if (arrivalDateStr == null || arrivalDateStr.isEmpty) return "Pending";
+    try {
+      DateTime arrival = DateTime.parse(arrivalDateStr);
+      DateTime expiry = arrival.add(const Duration(days: 30));
+      List<String> months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ];
+      return "${months[expiry.month - 1]} ${expiry.year}";
+    } catch (e) {
+      return "Pending";
+    }
   }
 
   @override
@@ -30,172 +55,190 @@ class ProfileScreen extends StatelessWidget {
     const Color backgroundBeige = Color(0xFFF9F7F0);
     const Color cardBackground = Colors.white;
 
+    final visaData = Provider.of<VisaApplicationProvider>(context);
+
     return FutureBuilder<Map<String, dynamic>?>(
-    future: fetchProfileData(), 
-    builder: (context, snapshot) {
-      
-      // While waiting for the backend
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
-      }
+        future: fetchProfileData(),
+        builder: (context, snapshot) {
+          // While waiting for the backend
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+                backgroundColor: backgroundBeige,
+                body: Center(
+                    child: CircularProgressIndicator(color: primaryRed)));
+          }
 
-      // Extract the data (the 'body')
-      final userData = snapshot.data;
+          // Extract the data
+          final userData = snapshot.data;
 
-    return Scaffold(
-      backgroundColor: backgroundBeige,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon:
-              const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          "Rahhal – Heritage Guide",
-          style: TextStyle(
-            color: Color(0xFF8B2323),
-            fontSize: 14, 
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
+          String displayName =
+              visaData.fullName ?? userData?['full_name'] ?? 'GUEST USER';
 
-            // Header Section
-            Center(
+          String passNum =
+              visaData.passportNumber ?? userData?['passport_number'] ?? '';
+          String displayId =
+              passNum.isNotEmpty ? "ID: #$passNum" : "ID: PENDING";
+
+          String arrivalDate =
+              visaData.arrivalDate ?? userData?['arrival_date'] ?? '';
+          String displayExpiry = _getFormattedExpiry(arrivalDate);
+
+          return Scaffold(
+            backgroundColor: backgroundBeige,
+            appBar: AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              centerTitle: true,
+              leading: IconButton(
+                icon: const Icon(Icons.arrow_back,
+                    color: Color(0xFF8B2323), size: 28),
+                onPressed: () => Navigator.pop(context),
+              ),
+              title: const Text(
+                "Rahhal – Heritage Guide",
+                style: TextStyle(
+                  color: Color(0xFF8B2323),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            body: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  const CircleAvatar(
-                    radius: 50,
-                    backgroundColor:
-                        Colors.grey, // Placeholder for backend image
-                    child: Icon(Icons.person, size: 50, color: Colors.white),
+                  const SizedBox(height: 20),
+
+                  // Header Section
+                  Center(
+                    child: Column(
+                      children: [
+                        const CircleAvatar(
+                          radius: 50,
+                          backgroundColor:
+                              Colors.grey, // Placeholder for backend image
+                          child:
+                              Icon(Icons.person, size: 50, color: Colors.white),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          displayName.toUpperCase(),
+                          style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1A2B48)),
+                          textAlign: TextAlign.center,
+                        ),
+                        const Text(
+                          'VERIFIED CITIZEN',
+                          style: TextStyle(
+                              color: primaryRed,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        Text(
+                          displayId,
+                          style:
+                              const TextStyle(color: Colors.grey, fontSize: 14),
+                        ),
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 12),
-                   Text(
-                    (userData?['full_name'] != null && userData!['full_name'].toString().isNotEmpty)
-                    ? userData!['full_name']
-                    : 'User', // Placeholder for name
-                    style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFF1A2B48)),
+
+                  const SizedBox(height: 30),
+
+                  // PriorityServices Section
+                  const _SectionHeader(title: 'PRIORITY SERVICES'),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _ServiceCard(
+                          icon: Icons.confirmation_number_outlined,
+                          title: 'My Jordan Pass',
+                          subtitle: 'Active',
+                          subtitleColor: Colors.green,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const JordanPassPage()),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 15),
+                      Expanded(
+                        child: _ServiceCard(
+                          icon: Icons.badge_outlined,
+                          title: 'Visa Status',
+                          subtitle: 'Expires: $displayExpiry',
+                          subtitleColor: Colors.grey,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const VisaApprovedPage()),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                  const Text(
-                    'VERIFIED CITIZEN',
-                    style: TextStyle(
-                        color: primaryRed,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold),
+
+                  const SizedBox(height: 30),
+
+                  // AccountSettings Section
+                  const _SectionHeader(title: 'ACCOUNT SETTINGS'),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: cardBackground,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Column(
+                      children: [
+                        _SettingsTile(
+                          icon: Icons.person_outline,
+                          title: 'Personal Information',
+                          subtitle: 'Edit your profile details',
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      const PersonalInfoPage()),
+                            );
+                          },
+                        ),
+                        const Divider(height: 1),
+                        const _SettingsTile(
+                          icon: Icons.description_outlined,
+                          title: 'Linked Documents',
+                          subtitle: 'Passport, ID, Certificates',
+                        ),
+                        const Divider(height: 1),
+                        const _SettingsTile(
+                          icon: Icons.tune_outlined,
+                          title: 'App Preferences',
+                          subtitle: 'Language, Theme, Display',
+                        ),
+                        const Divider(height: 1),
+                        const _SettingsTile(
+                          icon: Icons.notifications_none_outlined,
+                          title: 'Push Notifications',
+                          subtitle: 'Alerts, Updates, Reminders',
+                          isLast: true,
+                        ),
+                      ],
+                    ),
                   ),
-                  const Text(
-                    'ID: #JOR-882944',
-                    style: TextStyle(color: Colors.grey, fontSize: 14),
-                  ),
+                  const SizedBox(height: 100),
                 ],
               ),
             ),
-
-            const SizedBox(height: 30),
-
-            // PriorityServices Section
-            const _SectionHeader(title: 'PRIORITY SERVICES'),
-            Row(
-              children: [
-                Expanded(
-                  child: _ServiceCard(
-                    icon: Icons.confirmation_number_outlined,
-                    title: 'My Jordan Pass',
-                    subtitle: 'Active',
-                    subtitleColor: Colors.green,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const JordanPassPage()),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 15),
-                Expanded(
-                  child: _ServiceCard(
-                    icon: Icons.badge_outlined,
-                    title: 'Visa Status',
-                    subtitle: 'Expires: Jan 2025',
-                    subtitleColor: Colors.grey,
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const VisaApprovedPage()),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 30),
-
-            // AccountSettings Section
-            const _SectionHeader(title: 'ACCOUNT SETTINGS'),
-            Container(
-              decoration: BoxDecoration(
-                color: cardBackground,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Column(
-                children: [
-                  _SettingsTile(
-                    icon: Icons.person_outline,
-                    title: 'Personal Information',
-                    subtitle: 'Edit your profile details',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const PersonalInfoPage()),
-                      );
-                    },
-                  ),
-                  const Divider(height: 1),
-                  _SettingsTile(
-                    icon: Icons.description_outlined,
-                    title: 'Linked Documents',
-                    subtitle: 'Passport, ID, Certificates',
-                  ),
-                  const Divider(height: 1),
-                  _SettingsTile(
-                    icon: Icons.tune_outlined,
-                    title: 'App Preferences',
-                    subtitle: 'Language, Theme, Display',
-                  ),
-                  const Divider(height: 1),
-                  _SettingsTile(
-                    icon: Icons.notifications_none_outlined,
-                    title: 'Push Notifications',
-                    subtitle: 'Alerts, Updates, Reminders',
-                    isLast: true,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 100),
-          ],
-        ),
-      ),
-     bottomNavigationBar: const CustomBottomNav(currentIndex: 4),
-    );
-  }
-    );
+            bottomNavigationBar: const CustomBottomNav(currentIndex: 4),
+          );
+        });
   }
 }
 

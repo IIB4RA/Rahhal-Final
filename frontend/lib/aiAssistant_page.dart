@@ -29,7 +29,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
     _scrollToBottom();
 
     try {
-      final url = Uri.parse('http://192.168.43.152:8000/api/planner/generate/');
+      final url = Uri.parse('http://10.0.2.2:8000/api/planner/generate/');
       List<Map<String, String>> historyPayload = _messages
           .take(_messages.length - 1)
           .map((m) =>
@@ -89,7 +89,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4E9),
-       appBar: AppBar(
+      appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,

@@ -13,9 +13,10 @@ class TransportOptionSerializer(serializers.ModelSerializer):
             'duration_mins',
             'is_active',
         )
-        read_only_fields = fields
+        read_only_fields = ('id', 'duration_mins') 
 
 class JordanLocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = JordanLocation
         fields = '__all__'
+        read_only_fields = ('duration_mins',)

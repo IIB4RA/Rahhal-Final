@@ -6,7 +6,7 @@ class VisitorLog(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     region = models.ForeignKey(Region, on_delete=models.SET_NULL, null=True, blank=True)
     
-    duration_mins = models.IntegerField(default=0)
+    #duration_mins = models.IntegerField(default=0)
     
     device_type = models.CharField(max_length=50, null=True, blank=True) # Android, iOS, Web
     ip_address = models.GenericIPAddressField(null=True, blank=True)

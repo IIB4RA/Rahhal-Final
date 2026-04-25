@@ -3,17 +3,18 @@ import 'package:frontend/home_page.dart';
 import 'questionsPage.dart';
 import 'api_service.dart';
 import 'auth_service.dart';
-import 'user_type_page.dart';
+import 'admin_page.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthPage extends StatefulWidget {
   final bool initialIsLogin;
   final String selectedLanguage;
   AuthPage({
     super.key,
-    this.initialIsLogin = true, 
+    this.initialIsLogin = true,
     this.selectedLanguage = 'en',
   });
-  
+
   @override
   _AuthPageState createState() => _AuthPageState();
 }
@@ -23,18 +24,20 @@ class _AuthPageState extends State<AuthPage> {
   late String currentLanguage;
   bool rememberMe = false;
   bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
-    isLogin = widget.initialIsLogin; 
+    isLogin = widget.initialIsLogin;
     currentLanguage = widget.selectedLanguage;
   }
 
   final TextEditingController _identifierController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
 
-  Future<bool> handleAuth() async {
+  Future<Map<String, dynamic>?> handleAuth() async {
     final String identifier = _identifierController.text.trim();
     final String password = _passwordController.text.trim();
     final String confirmPassword = _confirmPasswordController.text.trim();
@@ -62,9 +65,9 @@ class _AuthPageState extends State<AuthPage> {
       if (data != null && data['access_token'] != null) {
         await saveRememberMe(rememberMe);
         await saveTokens(data['access_token'], data['refresh_token']);
-        return true;
+        return data;
       }
-      return false;
+      return null;
     } catch (e) {
       rethrow;
     }
@@ -81,7 +84,7 @@ class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 59, 56, 56),
+      backgroundColor: const Color.fromARGB(255, 59, 56, 56),
       body: SafeArea(
         child: Column(
           children: [
@@ -92,7 +95,8 @@ class _AuthPageState extends State<AuthPage> {
                   width: double.infinity,
                   decoration: BoxDecoration(
                     image: DecorationImage(
-                      image: AssetImage("assets/images/signinLoginPHOTO.jpg"),
+                      image: const AssetImage(
+                          "assets/images/signinLoginPHOTO.jpg"),
                       fit: BoxFit.cover,
                       colorFilter: ColorFilter.mode(
                         Colors.black.withOpacity(0.4),
@@ -106,7 +110,7 @@ class _AuthPageState extends State<AuthPage> {
                   left: 10,
                   child: SafeArea(
                     child: IconButton(
-                      icon: Icon(Icons.arrow_back_ios_new,
+                      icon: const Icon(Icons.arrow_back_ios_new,
                           color: Colors.white, size: 28),
                       onPressed: () {
                         Navigator.pop(context);
@@ -120,18 +124,19 @@ class _AuthPageState extends State<AuthPage> {
                     children: [
                       Text(
                         isLogin ? "Welcome again !" : "Welcome !",
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: Colors.white,
                           fontSize: 33,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         isLogin
                             ? "Your journey awaits"
                             : "Start your unforgettable journey in Jordan.",
-                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                        style: const TextStyle(
+                            color: Colors.white70, fontSize: 14),
                       ),
                     ],
                   ),
@@ -157,8 +162,8 @@ class _AuthPageState extends State<AuthPage> {
             ),
             Expanded(
               child: Container(
-                padding: EdgeInsets.all(20),
-                decoration: BoxDecoration(
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
                   color: Color(0xffEAE3D2),
                   borderRadius: BorderRadius.vertical(top: Radius.circular(0)),
                 ),
@@ -172,7 +177,7 @@ class _AuthPageState extends State<AuthPage> {
                         hint: "Enter your Email / Phone here",
                         icon: Icons.phone,
                       ),
-                      SizedBox(height: 15),
+                      const SizedBox(height: 15),
                       _label("Password"),
                       _inputField(
                         controller: _passwordController,
@@ -181,7 +186,7 @@ class _AuthPageState extends State<AuthPage> {
                         isPassword: true,
                       ),
                       if (!isLogin) ...[
-                        SizedBox(height: 15),
+                        const SizedBox(height: 15),
                         _label("Confirm Password"),
                         _inputField(
                           controller: _confirmPasswordController,
@@ -190,7 +195,7 @@ class _AuthPageState extends State<AuthPage> {
                           isPassword: true,
                         ),
                       ],
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -198,34 +203,35 @@ class _AuthPageState extends State<AuthPage> {
                             children: [
                               Checkbox(
                                 value: rememberMe,
-                                activeColor: Color.fromARGB(255, 56, 170, 39),
+                                activeColor:
+                                    const Color.fromARGB(255, 56, 170, 39),
                                 onChanged: (val) {
                                   setState(() {
                                     rememberMe = val!;
                                   });
                                 },
                               ),
-                              Text("Remember me"),
+                              const Text("Remember me"),
                             ],
                           ),
                           if (isLogin)
-                            Text(
+                            const Text(
                               "Forgot Password?",
                               style: TextStyle(
                                   color: Color.fromRGBO(124, 33, 49, 1)),
                             ),
                         ],
                       ),
-                      SizedBox(height: 15),
+                      const SizedBox(height: 15),
                       Center(
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             foregroundColor: Colors.white,
-                            backgroundColor: Color(0xff1C2340),
+                            backgroundColor: const Color(0xff1C2340),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),
                             ),
-                            padding: EdgeInsets.symmetric(
+                            padding: const EdgeInsets.symmetric(
                                 horizontal: 40, vertical: 14),
                           ),
                           onPressed: _isLoading
@@ -233,8 +239,18 @@ class _AuthPageState extends State<AuthPage> {
                               : () async {
                                   setState(() => _isLoading = true);
                                   try {
-                                    bool success = await handleAuth();
-                                    if (success && mounted) {
+                                    final data = await handleAuth();
+                                    if (data != null && mounted) {
+                                      // تخزين الاسم من الداتا بيس
+                                      final storage =
+                                          const FlutterSecureStorage();
+                                      String nameFromDb = data['user']
+                                              ?['full_name'] ??
+                                          data['user']?['username'] ??
+                                          'Admin';
+                                      await storage.write(
+                                          key: 'user_name', value: nameFromDb);
+
                                       if (!isLogin) {
                                         Navigator.pushReplacement(
                                           context,
@@ -242,11 +258,22 @@ class _AuthPageState extends State<AuthPage> {
                                               builder: (_) => QuestionsPage()),
                                         );
                                       } else {
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (_) => HomePage()),
-                                        );
+                                        String role =
+                                            data['user']?['role'] ?? 'tourist';
+                                        if (role == 'admin') {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (_) =>
+                                                    const AnalyticsScreen()),
+                                          );
+                                        } else {
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (_) => HomePage()),
+                                          );
+                                        }
                                       }
                                     }
                                   } catch (e) {
@@ -262,8 +289,9 @@ class _AuthPageState extends State<AuthPage> {
                                       );
                                     }
                                   } finally {
-                                    if (mounted)
+                                    if (mounted) {
                                       setState(() => _isLoading = false);
+                                    }
                                   }
                                 },
                           child: _isLoading
@@ -278,10 +306,10 @@ class _AuthPageState extends State<AuthPage> {
                                   children: [
                                     Text(
                                       isLogin ? "Continue" : "Create account",
-                                      style: TextStyle(fontSize: 16),
+                                      style: const TextStyle(fontSize: 16),
                                     ),
-                                    SizedBox(width: 10),
-                                    Icon(Icons.arrow_forward),
+                                    const SizedBox(width: 10),
+                                    const Icon(Icons.arrow_forward),
                                   ],
                                 ),
                         ),
@@ -304,11 +332,11 @@ class _AuthPageState extends State<AuthPage> {
           setState(() => isLogin = loginState);
         },
         child: Container(
-          padding: EdgeInsets.symmetric(vertical: 12),
+          padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
             color: isLogin == loginState
                 ? const Color.fromRGBO(124, 33, 49, 1)
-                : Color.fromARGB(0, 248, 248, 248),
+                : const Color.fromARGB(0, 248, 248, 248),
             borderRadius: BorderRadius.circular(30),
           ),
           alignment: Alignment.center,
@@ -331,7 +359,7 @@ class _AuthPageState extends State<AuthPage> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Text(
         text,
-        style: TextStyle(fontWeight: FontWeight.w600),
+        style: const TextStyle(fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -350,7 +378,7 @@ class _AuthPageState extends State<AuthPage> {
         hintText: hint,
         filled: true,
         fillColor: Colors.white,
-        suffixIcon: isPassword ? Icon(Icons.visibility_off) : null,
+        suffixIcon: isPassword ? const Icon(Icons.visibility_off) : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
         ),

@@ -1,22 +1,11 @@
 import 'package:flutter/material.dart';
-
-import 'package:frontend/home_page.dart';
 import 'package:provider/provider.dart';
-import 'providers/favorites_provider.dart';
-import 'aiAssistant_page.dart';
-import'personal_info_page.dart';
-import 'welcomepage.dart';
-import 'main_wrapper.dart';
-import 'explorPage.dart';
-import 'hotelBoookingPage.dart';
-import 'events_page.dart';
-import 'admin_page.dart';
-import 'profile.dart';
-import "home_page.dart";
-import 'auth_page.dart';
-import "auth_service.dart";
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-
+import 'providers/favorites_provider.dart';
+import 'providers/visa_application_provider.dart';
+import 'welcomepage.dart';
+import 'home_page.dart';
+import 'auth_service.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -31,29 +20,25 @@ Future<void> main() async {
     await logout();
   }
 
-  Widget initialPage = (remember && accessToken != null) ?  HomePage() :  WelcomePage();
+  Widget initialPage =
+      (remember && accessToken != null) ? const HomePage() : WelcomePage();
 
   runApp(
-   MultiProvider(
+    MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => FavoritesProvider()),
+        ChangeNotifierProvider(create: (_) => VisaApplicationProvider()),
       ],
       child: MaterialApp(
-        home: initialPage,
+        title: 'Rahhal App',
         navigatorKey: navigatorKey,
+        home: initialPage,
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primaryColor: const Color(0xFF8B2323),
+          useMaterial3: true,
+        ),
       ),
     ),
   );
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return  MaterialApp(
-      home: WelcomePage(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
 }

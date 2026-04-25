@@ -1,23 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'providers/visa_application_provider.dart';
 import 'digitalPass.dart';
 
 class VisaApprovedPage extends StatelessWidget {
-  // variable fill from backend
-  final String referenceNo;
-  final String issueDate;
-  final String expiryDate;
+  const VisaApprovedPage({super.key});
 
-  const VisaApprovedPage({
-    super.key,
-    // Default values ​​
-    this.referenceNo = "JOR-99210-AS",
-    this.issueDate = "Oct 24, 2023",
-    this.expiryDate = "Nov 24, 2023",
-  });
+  String _formatDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return "PENDING";
+    try {
+      DateTime date = DateTime.parse(dateStr);
+      List<String> months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ];
+      return "${months[date.month - 1]} ${date.day}, ${date.year}";
+    } catch (e) {
+      return "PENDING";
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     const primaryRed = Color(0xFF7B2027);
+
+    final visaProvider = Provider.of<VisaApplicationProvider>(context);
+
+    String dynamicIssueDate = _formatDate(visaProvider.arrivalDate);
+
+    String passportSuffix = visaProvider.passportNumber != null &&
+            visaProvider.passportNumber!.length > 2
+        ? visaProvider.passportNumber!
+            .substring(visaProvider.passportNumber!.length - 2)
+        : "XX";
+    String dynamicReferenceNo = "JOR-99210-$passportSuffix".toUpperCase();
 
     return Scaffold(
       backgroundColor: primaryRed,
@@ -98,16 +124,14 @@ class VisaApprovedPage extends StatelessWidget {
                   const SizedBox(height: 15),
                   Row(
                     children: [
-                      _buildInfoItem("Issue Date", issueDate), // from backend
-                      _buildInfoItem(
-                          "Reference No.", referenceNo), // from backend
+                      _buildInfoItem("Issue Date", dynamicIssueDate),
+                      _buildInfoItem("Reference No.", dynamicReferenceNo),
                     ],
                   ),
                   const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
                     child: OutlinedButton.icon(
-                      //
                       onPressed: () {
                         Navigator.push(
                           context,
@@ -177,7 +201,7 @@ class VisaApprovedPage extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-// back to homePage
+            // back to homePage
             SizedBox(
               width: double.infinity,
               height: 55,
@@ -203,10 +227,7 @@ class VisaApprovedPage extends StatelessWidget {
             const SizedBox(height: 20),
             const Text("Having trouble? Contact Rihla Support",
                 style: TextStyle(color: Colors.white70, fontSize: 10)),
-
             const SizedBox(height: 30),
-            const Text("Having trouble? Contact Rihla Support",
-                style: TextStyle(color: Colors.white70, fontSize: 10)),
           ],
         ),
       ),
@@ -228,17 +249,9 @@ class VisaApprovedPage extends StatelessWidget {
   }
 }
 
+// الكلاس الثاني الخاص بالتنقل
 class VisaApprovedPageWithNav extends StatelessWidget {
-  final String referenceNo;
-  final String issueDate;
-  final String expiryDate;
-
-  const VisaApprovedPageWithNav({
-    super.key,
-    this.referenceNo = "JOR-99210-AS",
-    this.issueDate = "Oct 24, 2023",
-    this.expiryDate = "Nov 24, 2023",
-  });
+  const VisaApprovedPageWithNav({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -254,10 +267,7 @@ class VisaApprovedPageWithNav extends StatelessWidget {
         title: const Text("Application Status",
             style: TextStyle(color: Colors.white, fontSize: 16)),
       ),
-      body: VisaApprovedPage(
-          referenceNo: referenceNo,
-          issueDate: issueDate,
-          expiryDate: expiryDate),
+      body: const VisaApprovedPage(),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF8B2323),

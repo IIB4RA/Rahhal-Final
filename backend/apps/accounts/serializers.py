@@ -67,15 +67,10 @@ class MeSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            "email", 
-            "full_name", 
-            "nationality", 
-            "language",
-            "phone",
-            "role",
-            "status",
-            "avatar_url",
-            )
+            "email", "full_name", "nationality", "language", "phone",
+            "role", "status", "avatar_url",
+            "passport_number", "arrival_date", "departure_date" # ضفناهم هون
+        )
 
         
 class LoginSerializer(serializers.Serializer):
@@ -99,13 +94,9 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            "email", 
-            "full_name", 
-            "nationality", 
-            "language",
-            "phone",
-            "avatar_url",
-            )
+            "email", "full_name", "nationality", "language", "phone",
+            "passport_number", "arrival_date", "departure_date" # ضفناهم هون
+        )
 
     def validate_email(self, email):
         email = email.strip()

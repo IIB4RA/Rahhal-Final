@@ -1,13 +1,108 @@
 import 'package:flutter/material.dart';
+import 'package:qr_flutter/qr_flutter.dart';
+import 'package:provider/provider.dart';
+import 'providers/visa_application_provider.dart';
 
-class JordanPassPage extends StatelessWidget {
+class JordanPassPage extends StatefulWidget {
   const JordanPassPage({super.key});
+
+  @override
+  State<JordanPassPage> createState() => _JordanPassPageState();
+}
+
+class _JordanPassPageState extends State<JordanPassPage> {
+  String _getFormattedExpiry(String? arrivalDateStr) {
+    if (arrivalDateStr == null || arrivalDateStr.isEmpty) return "NOT SET";
+    try {
+      DateTime arrival = DateTime.parse(arrivalDateStr);
+      DateTime expiry = arrival.add(const Duration(days: 30));
+
+      List<String> months = [
+        "JAN",
+        "FEB",
+        "MAR",
+        "APR",
+        "MAY",
+        "JUN",
+        "JUL",
+        "AUG",
+        "SEP",
+        "OCT",
+        "NOV",
+        "DEC"
+      ];
+
+      return "${expiry.day} ${months[expiry.month - 1]} ${expiry.year}";
+    } catch (e) {
+      return "PENDING";
+    }
+  }
+
+  void _showExpandedQrDialog(BuildContext context, String qrData) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(20),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text("Jordan Pass QR",
+                        style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF8B2323))),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.grey),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Center(
+                  child: QrImageView(
+                    data: qrData,
+                    version: QrVersions.auto,
+                    size: 250.0,
+                    backgroundColor: Colors.white,
+                    padding: EdgeInsets.zero,
+                    errorCorrectionLevel: QrErrorCorrectLevel.M,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text("Scan this code at the gate.",
+                    style: TextStyle(color: Colors.grey, fontSize: 12)),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     const Color primaryBurgundy = Color(0xFF7A2021);
     const Color lightCream = Color(0xFFF9F4E8);
-//Jordan Pass
+
+    final visaProvider = Provider.of<VisaApplicationProvider>(context);
+
+    String displayName = visaProvider.fullName ?? "GUEST TRAVELER";
+    String displayPassport = visaProvider.passportNumber ?? "-------";
+    String dynamicQrData = "RAHHAL-PASS-$displayPassport-VALID";
+    String expiryDate = _getFormattedExpiry(visaProvider.arrivalDate);
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -33,7 +128,6 @@ class JordanPassPage extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 10),
-            // Main Digital ID Card
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -79,74 +173,95 @@ class JordanPassPage extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 20),
-                  // Profile and Info Section
                   Row(
                     children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          'https://via.placeholder.com/100', // Replace with user image asset
-                          width: 80, height: 80, fit: BoxFit.cover,
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: Colors.white24,
+                          borderRadius: BorderRadius.circular(12),
                         ),
+                        child: const Icon(Icons.person,
+                            color: Colors.white, size: 45),
                       ),
                       const SizedBox(width: 15),
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("FULL NAME",
-                              style: TextStyle(
-                                  color: Colors.white70, fontSize: 10)),
-                          Text("Abdullah Al-\nHashem",
-                              style: TextStyle(
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("FULL NAME",
+                                style: TextStyle(
+                                    color: Colors.white70, fontSize: 10)),
+                            Text(
+                              displayName.toUpperCase(),
+                              style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
-                                  fontWeight: FontWeight.bold)),
-                          SizedBox(height: 8),
-                          Text("PASSPORT NUMBER",
-                              style: TextStyle(
-                                  color: Colors.white70, fontSize: 10)),
-                          Text("Z12345678",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 14)),
-                        ],
+                                  fontWeight: FontWeight.bold),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 8),
+                            const Text("PASSPORT NUMBER",
+                                style: TextStyle(
+                                    color: Colors.white70, fontSize: 10)),
+                            Text(
+                              displayPassport,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 14),
+                            ),
+                          ],
+                        ),
                       )
                     ],
                   ),
                   const SizedBox(height: 25),
-                  // QR Scan Area
                   Center(
-                    child: Container(
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: const Color(
-                            0xFF2D5A52), // Dark teal background from UI
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Column(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            color: Colors.white,
-                            child: const Icon(Icons.qr_code_2,
-                                size: 80,
-                                color: Colors.black), // Replace with actual QR
-                          ),
-                          const SizedBox(height: 10),
-                          const Text("SCAN FOR VERIFICATION",
-                              style: TextStyle(
-                                  color: Colors.amber,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold)),
-                        ],
+                    child: GestureDetector(
+                      onTap: () =>
+                          _showExpandedQrDialog(context, dynamicQrData),
+                      child: Container(
+                        padding: const EdgeInsets.all(15),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF2D5A52),
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Column(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: QrImageView(
+                                data: dynamicQrData,
+                                version: QrVersions.auto,
+                                size: 80.0,
+                                backgroundColor: Colors.white,
+                                padding: EdgeInsets.zero,
+                                errorCorrectionLevel: QrErrorCorrectLevel.M,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            const Text("SCAN FOR VERIFICATION",
+                                style: TextStyle(
+                                    color: Colors.amber,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold)),
+                            const Text("(Tap to enlarge)",
+                                style: TextStyle(
+                                    color: Colors.white54, fontSize: 8)),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                   const SizedBox(height: 25),
-                  // Status and Expiration
-                  const Row(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
+                      const Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text("VISA STATUS",
@@ -162,11 +277,11 @@ class JordanPassPage extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
-                          Text("EXPIRATION DATE",
+                          const Text("EXPIRATION DATE",
                               style: TextStyle(
                                   color: Colors.white70, fontSize: 10)),
-                          Text("12 NOV 2025",
-                              style: TextStyle(
+                          Text(expiryDate,
+                              style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold)),
@@ -178,7 +293,6 @@ class JordanPassPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 30),
-            // Action Buttons
             ElevatedButton.icon(
               onPressed: () {},
               icon: const Icon(Icons.wallet, color: Colors.white),
@@ -206,7 +320,6 @@ class JordanPassPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 20),
-            // Premium Traveler Card
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
@@ -235,6 +348,7 @@ class JordanPassPage extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 20),
           ],
         ),
       ),
@@ -242,10 +356,8 @@ class JordanPassPage extends StatelessWidget {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: primaryBurgundy,
         unselectedItemColor: Colors.grey,
-        currentIndex: 3,
-        onTap: (index) {
-          if (index != 3) Navigator.pushReplacementNamed(context, '/services');
-        },
+        currentIndex: 2,
+        onTap: (index) {},
         items: const [
           BottomNavigationBarItem(
               icon: Icon(Icons.home_outlined), label: "Home"),

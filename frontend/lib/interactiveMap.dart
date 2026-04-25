@@ -29,14 +29,13 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   List<Marker> markers = [];
-  
- 
-  final String apiUrl = 'http://192.168.43.152:8000/api/locations/'; 
+
+  final String apiUrl = 'http://10.0.2.2:8000/api/locations/';
 
   @override
   void initState() {
     super.initState();
-    fetchPlaces(); 
+    fetchPlaces();
   }
 
   //DATABASE FUNCTIONS
@@ -55,7 +54,8 @@ class _MapScreenState extends State<MapScreen> {
               point: LatLng(place['latitude'], place['longitude']),
               child: GestureDetector(
                 onTap: () => _showPlaceInfo(place['title']),
-                child: const Icon(Icons.location_on, color: Colors.red, size: 40),
+                child:
+                    const Icon(Icons.location_on, color: Colors.red, size: 40),
               ),
             );
           }).toList();
@@ -73,7 +73,7 @@ class _MapScreenState extends State<MapScreen> {
         Uri.parse(apiUrl),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({
-          "title": "Jordan Location", 
+          "title": "Jordan Location",
           "latitude": point.latitude,
           "longitude": point.longitude,
           "description": "Location added from Interactive Map",
@@ -82,7 +82,7 @@ class _MapScreenState extends State<MapScreen> {
 
       if (response.statusCode == 201) {
         debugPrint("Saved to Database!");
-        fetchPlaces(); 
+        fetchPlaces();
       }
     } catch (e) {
       debugPrint("Error saving location: $e");
@@ -95,7 +95,7 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  // UI BUILD 
+  // UI BUILD
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +110,7 @@ class _MapScreenState extends State<MapScreen> {
           )
         ],
       ),*/
-       appBar: AppBar(
+      appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         centerTitle: true,
@@ -139,8 +139,7 @@ class _MapScreenState extends State<MapScreen> {
         children: [
           TileLayer(
             urlTemplate: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            
-            userAgentPackageName: 'com.rahhal.jordan_map', 
+            userAgentPackageName: 'com.rahhal.jordan_map',
           ),
           MarkerLayer(markers: markers),
         ],
@@ -148,4 +147,3 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 }
-

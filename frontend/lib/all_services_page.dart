@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'providers/visa_application_provider.dart';
 import 'aiAssistant_page.dart';
 import 'explorPage.dart';
 import 'hotelBoookingPage.dart';
@@ -8,7 +10,6 @@ import 'profile.dart';
 import 'user_type_page.dart';
 import 'custom_bottom_nav.dart';
 import 'interactiveMap.dart';
-
 
 class UserServiceData {
   final String name;
@@ -30,22 +31,22 @@ class ServicesScreen extends StatefulWidget {
 }
 
 class _ServicesScreenState extends State<ServicesScreen> {
-  int _currentIndex = 3;
-  late UserServiceData userData;
-
-  @override
-  void initState() {
-    super.initState();
-    userData = UserServiceData(
-      name: "Alex Johnson",
-      validity: "12 Months",
-      qrData: "REF_0987654321",
-    );
-  }
+  final int _currentIndex = 3;
 
   @override
   Widget build(BuildContext context) {
     const Color bgColor = Color(0xFFF2F4E8);
+
+    // سحب البيانات من الـ Provider
+    final visaData = Provider.of<VisaApplicationProvider>(context);
+    final displayName = visaData.fullName ?? "Guest User";
+    final passportNo = visaData.passportNumber ?? "0000000";
+
+    final userData = UserServiceData(
+      name: displayName.toUpperCase(),
+      validity: "12 Months",
+      qrData: "REF_$passportNo", // ربطنا الـ QR برقم الجواز عشان يكون حقيقي
+    );
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -67,36 +68,12 @@ class _ServicesScreenState extends State<ServicesScreen> {
           ),
         ),
       ),
-      body: _buildBody(),
+      body: _buildBody(userData),
       bottomNavigationBar: const CustomBottomNav(currentIndex: 3),
     );
   }
 
-  void _navigateToTab(BuildContext context, int index) {
-    Widget? page;
-    switch (index) {
-      case 0:
-        page = const UserTypePage();
-        break;
-      case 1:
-        page = const ExploreScreen();
-        break;
-      case 2:
-        page = const PassportScanPage();
-        break;
-      case 4:
-        page = const ProfileScreen();
-        break;
-      default:
-        return;
-    }
-    if (page != null) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => page!));
-    }
-  }
-
-  Widget _buildBody() {
+  Widget _buildBody(UserServiceData userData) {
     if (_currentIndex != 3) {
       return Center(
         child: Text(
@@ -139,10 +116,10 @@ class _ServicesScreenState extends State<ServicesScreen> {
                   "Explore", const ExploreScreen()),
               _buildServiceIcon(context, Icons.hotel_outlined, "Hotels",
                   const HotelBookingScreen()),
-              _buildServiceIcon(context, Icons.directions_car_outlined,
-                  "Transport", const TransportPage()),
-              _buildServiceIcon(context, Icons.medical_services_outlined,
-                  "SOS Help", const SOSPage()),
+              //_buildServiceIcon(context, Icons.directions_car_outlined,
+              //   "Transport", const TransportPage()),
+              // _buildServiceIcon(context, Icons.medical_services_outlined,
+              //   "SOS Help", const SOSPage()),
             ],
           ),
         ],
@@ -218,11 +195,15 @@ class HeritageCard extends StatelessWidget {
                       color: Colors.white54,
                       fontSize: 10,
                       fontWeight: FontWeight.bold)),
-              Text(data.name,
-                  style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500)),
+              Text(
+                data.name,
+                style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
           Positioned(
@@ -251,68 +232,4 @@ class HeritageCard extends StatelessWidget {
       ),
     );
   }
-}
-
-class VisaPage extends StatelessWidget {
-  const VisaPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: const Text("Visa")),
-      body: const Center(child: Text("Visa Page")));
-}
-
-class JordanPassPage extends StatelessWidget {
-  const JordanPassPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: const Text("Jordan Pass")),
-      body: const Center(child: Text("Jordan Pass Page")));
-}
-
-class AIPlannerPage extends StatelessWidget {
-  const AIPlannerPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: const Text("AI Planner")),
-      body: const Center(child: Text("AI Planner Page")));
-}
-
-class MapPage extends StatelessWidget {
-  const MapPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: const Text("Smart Map")),
-      body: const Center(child: Text("Map Page")));
-}
-
-class ExplorePage extends StatelessWidget {
-  const ExplorePage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: const Text("Explore")),
-      body: const Center(child: Text("Explore Page")));
-}
-
-class HotelPage extends StatelessWidget {
-  const HotelPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: const Text("Hotels")),
-      body: const Center(child: Text("Hotel Page")));
-}
-
-class TransportPage extends StatelessWidget {
-  const TransportPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: const Text("Transport")),
-      body: const Center(child: Text("Transport Page")));
-}
-
-class SOSPage extends StatelessWidget {
-  const SOSPage({super.key});
-  @override
-  Widget build(BuildContext context) => Scaffold(
-      appBar: AppBar(title: const Text("SOS Help")),
-      body: const Center(child: Text("SOS Page")));
 }
