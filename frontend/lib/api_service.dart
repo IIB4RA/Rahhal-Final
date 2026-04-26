@@ -43,17 +43,17 @@ class ApiService {
         case 'GET':
           response = await http
               .get(uri, headers: headers)
-              .timeout(const Duration(seconds: 15));
+              .timeout(const Duration(seconds: 50));
           break;
         case 'POST':
           response = await http
               .post(uri, headers: headers, body: body)
-              .timeout(const Duration(seconds: 15));
+              .timeout(const Duration(seconds: 50));
           break;
         case 'PATCH':
           response = await http
               .patch(uri, headers: headers, body: body)
-              .timeout(const Duration(seconds: 15));
+              .timeout(const Duration(seconds: 50));
           break;
         default:
           throw Exception("Method $method not supported");

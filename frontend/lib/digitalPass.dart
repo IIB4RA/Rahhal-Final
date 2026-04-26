@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:provider/provider.dart';
 import 'providers/visa_application_provider.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class JordanPassPage extends StatefulWidget {
   const JordanPassPage({super.key});
@@ -11,6 +12,30 @@ class JordanPassPage extends StatefulWidget {
 }
 
 class _JordanPassPageState extends State<JordanPassPage> {
+  String fallbackName = "GUEST TRAVELER";
+
+  @override
+  void initState() {
+    super.initState();
+    // تحديث البيانات فور فتح الصفحة
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<VisaApplicationProvider>(context, listen: false)
+          .loadPersistedData();
+      _loadFallbackName();
+    });
+  }
+
+  // جلب الاسم من التخزين المحلي كخيار بديل إذا كانت الداتابيز لسا فاضية
+  Future<void> _loadFallbackName() async {
+    final storage = const FlutterSecureStorage();
+    String? savedName = await storage.read(key: 'user_name');
+    if (savedName != null && savedName.isNotEmpty && mounted) {
+      setState(() {
+        fallbackName = savedName;
+      });
+    }
+  }
+
   String _getFormattedExpiry(String? arrivalDateStr) {
     if (arrivalDateStr == null || arrivalDateStr.isEmpty) return "NOT SET";
     try {
@@ -98,7 +123,12 @@ class _JordanPassPageState extends State<JordanPassPage> {
 
     final visaProvider = Provider.of<VisaApplicationProvider>(context);
 
-    String displayName = visaProvider.fullName ?? "GUEST TRAVELER";
+    // المنطق الجديد: استخدم الاسم من الداتابيز، إذا فاضي استخدم الفولباك من الـ Storage
+    String displayName =
+        (visaProvider.fullName != null && visaProvider.fullName!.isNotEmpty)
+            ? visaProvider.fullName!
+            : fallbackName;
+
     String displayPassport = visaProvider.passportNumber ?? "-------";
     String dynamicQrData = "RAHHAL-PASS-$displayPassport-VALID";
     String expiryDate = _getFormattedExpiry(visaProvider.arrivalDate);

@@ -20,14 +20,25 @@ Future<void> main() async {
     await logout();
   }
 
-  Widget initialPage =
-      (remember && accessToken != null) ? const HomePage() : WelcomePage();
+  bool isLoggedIn = remember && accessToken != null;
+  Widget initialPage = isLoggedIn ? const HomePage() : WelcomePage();
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => FavoritesProvider()),
-        ChangeNotifierProvider(create: (_) => VisaApplicationProvider()),
+
+        ChangeNotifierProvider(
+          create: (_) {
+            final visaProvider = VisaApplicationProvider();
+
+            if (isLoggedIn) {
+              visaProvider.loadPersistedData();
+            }
+            return visaProvider;
+          },
+        ),
+        // ------------------------------------------------------
       ],
       child: MaterialApp(
         title: 'Rahhal App',

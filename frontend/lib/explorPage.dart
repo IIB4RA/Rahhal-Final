@@ -11,9 +11,14 @@ class ExploreScreen extends StatefulWidget {
   Future<dynamic> explore() async {
     try {
       final data = await Future.wait([
-        ApiService().request(method: 'GET', endpoint: '/tourism/attraction/', requiresAuth: true),
-        ApiService().request(method: 'GET', endpoint: '/tourism/tour/', requiresAuth: true),
-        ApiService().request(method: 'GET', endpoint: '/tourism/event/', requiresAuth: true),
+        ApiService().request(
+            method: 'GET',
+            endpoint: '/tourism/attraction/',
+            requiresAuth: true),
+        ApiService().request(
+            method: 'GET', endpoint: '/tourism/tour/', requiresAuth: true),
+        ApiService().request(
+            method: 'GET', endpoint: '/tourism/event/', requiresAuth: true),
       ]);
       return {
         'attractions': data[0],
@@ -21,7 +26,7 @@ class ExploreScreen extends StatefulWidget {
         'events': data[2],
       };
     } catch (e) {
-      print("Backend Connection Error: $e");
+      debugPrint("Backend Connection Error: $e");
       throw e;
     }
   }
@@ -32,11 +37,15 @@ class ExploreScreen extends StatefulWidget {
 
 class _ExploreScreenState extends State<ExploreScreen> {
   late Future<dynamic> _exploreFuture;
-
   String _selectedCategory = "All";
-
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _exploreFuture = widget.explore();
+  }
 
   @override
   void dispose() {
@@ -44,10 +53,19 @@ class _ExploreScreenState extends State<ExploreScreen> {
     super.dispose();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _exploreFuture = widget.explore();
+  // --- دالة معالجة الروابط لتقرأ من سوبابيس أو السيرفر المحلي ---
+  String _getFullImageUrl(String? url) {
+    if (url == null || url.isEmpty) {
+      return 'https://placehold.co/600x400/png?text=No+Image';
+    }
+
+    // إذا كان الرابط يبدأ بـ http (زي روابط سوبابيس اللي بعثتها) بنرجعه زي ما هو
+    if (url.toLowerCase().startsWith('http')) {
+      return url;
+    }
+
+    // إذا كان رابط نسبي من الديجانغو المحلي
+    return 'http://10.0.2.2:8000${url.startsWith('/') ? url : '/$url'}';
   }
 
   List<dynamic> _filterItems(Map<String, dynamic> data) {
@@ -58,22 +76,12 @@ class _ExploreScreenState extends State<ExploreScreen> {
     List<dynamic> results;
     if (_selectedCategory == "All") {
       results = [...attractions, ...events, ...tours];
-    } else if (_selectedCategory == "Historical") {
-      results = attractions.where((item) => item['category'] == 'historical').toList();
-    } else if (_selectedCategory == "Nature") {
-      results = attractions.where((item) => item['category'] == 'nature').toList();
-    } else if (_selectedCategory == "Adventure") {
-      results = attractions.where((item) => item['category'] == 'adventure').toList();
-    } else if (_selectedCategory == "Religious") {
-      results = attractions.where((item) => item['category'] == 'religious').toList();
-    } else if (_selectedCategory == "Cultural") {
-      results = attractions.where((item) => item['category'] == 'cultural').toList();
-    } else if (_selectedCategory == "Beach") {
-      results = attractions.where((item) => item['category'] == 'beach').toList();
-    } else if (_selectedCategory == "Desert") {
-      results = attractions.where((item) => item['category'] == 'desert').toList();
     } else {
-      results = [];
+      results = attractions
+          .where((item) =>
+              item['category']?.toString().toLowerCase() ==
+              _selectedCategory.toLowerCase())
+          .toList();
     }
 
     if (_searchQuery.isNotEmpty) {
@@ -96,7 +104,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
+          icon:
+              const Icon(Icons.arrow_back, color: Color(0xFF8B2323), size: 28),
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
@@ -118,12 +127,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF8B2323)),
-                  );
+                      child:
+                          CircularProgressIndicator(color: Color(0xFF8B2323)));
                 } else if (snapshot.hasError) {
-                  return Center(
-                    child: Text("Error: ${snapshot.error}"),
-                  );
+                  return Center(child: Text("Error: ${snapshot.error}"));
                 } else if (!snapshot.hasData) {
                   return const Center(child: Text("No data found"));
                 }
@@ -135,18 +142,23 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   itemCount: filteredItems.length,
                   itemBuilder: (context, index) {
                     final item = filteredItems[index];
+
+                    // ملاحظة: غيرنا 'image' لـ 'image_url' بناءً على طلبك
+                    final imageUrl = _getFullImageUrl(item['image_url']);
+
                     return _buildAttractionCard(
                       context,
-                      item['name_en'] ?? 'Unknown',
+                      item['name_en'] ?? 'Unknown Destination',
                       item['region_name_en'] ?? 'Jordan',
                       (item['avg_rating'] ?? '0.0').toString(),
-                      (item['total_reviews'] ?? '0.0').toString(),
+                      (item['total_reviews'] ?? '0').toString(),
                       item['description_en'] ?? 'No description available',
                       (item['max_guests'] != null)
-                          ? "${item['max_guests']} guests, ${item['duration_hours']} hours"
+                          ? "${item['max_guests']} guests, ${item['duration_hours']} hrs"
                           : (item['event_date'] ?? '--'),
-                      (item['price'] ?? item['entry_fee']) ?? 'Free',
-                      item['image'] ?? "https://i.pinimg.com/1200x/f3/bf/0f/f3bf0fa68a953acc4fe0307e61373950.jpg",
+                      (item['price'] ?? item['entry_fee'])?.toString() ??
+                          'Free',
+                      imageUrl,
                     );
                   },
                 );
@@ -164,26 +176,11 @@ class _ExploreScreenState extends State<ExploreScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: TextField(
         controller: _searchController,
-        onChanged: (value) {
-          setState(() {
-            _searchQuery = value.toLowerCase();
-          });
-        },
+        onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
         decoration: InputDecoration(
           hintText: "Search destinations in Jordan...",
           hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
           prefixIcon: const Icon(Icons.search, color: Colors.grey),
-          suffixIcon: _searchQuery.isNotEmpty
-              ? IconButton(
-                  icon: const Icon(Icons.clear, size: 18),
-                  onPressed: () {
-                    _searchController.clear();
-                    setState(() {
-                      _searchQuery = "";
-                    });
-                  },
-                )
-              : null,
           filled: true,
           fillColor: Colors.white,
           contentPadding: const EdgeInsets.symmetric(vertical: 0),
@@ -197,7 +194,16 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   Widget _buildCategoryFilter() {
-    final categories = ["All", "Historical", "Nature", "Adventure", "Religious", "Cultural", "Beach", "Desert"];
+    final categories = [
+      "All",
+      "Historical",
+      "Nature",
+      "Adventure",
+      "Religious",
+      "Cultural",
+      "Beach",
+      "Desert"
+    ];
     return Container(
       height: 40,
       margin: const EdgeInsets.symmetric(vertical: 8),
@@ -206,28 +212,24 @@ class _ExploreScreenState extends State<ExploreScreen> {
         padding: const EdgeInsets.only(left: 16),
         itemCount: categories.length,
         itemBuilder: (context, index) {
-          final categoryName = categories[index];
-          bool isSelected = _selectedCategory == categoryName;
-
+          final cat = categories[index];
+          bool isSelected = _selectedCategory == cat;
           return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedCategory = categoryName;
-              });
-            },
+            onTap: () => setState(() => _selectedCategory = cat),
             child: Container(
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               decoration: BoxDecoration(
-                color: isSelected ? const Color(0xFF702632) : const Color(0xFFD9D9C3),
+                color: isSelected
+                    ? const Color(0xFF702632)
+                    : const Color(0xFFD9D9C3),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
-                categoryName,
+                cat,
                 style: TextStyle(
-                  color: isSelected ? Colors.white : Colors.black87,
-                  fontWeight: FontWeight.w500,
-                ),
+                    color: isSelected ? Colors.white : Colors.black87,
+                    fontWeight: FontWeight.w500),
               ),
             ),
           );
@@ -236,29 +238,34 @@ class _ExploreScreenState extends State<ExploreScreen> {
     );
   }
 
-  Widget _buildAttractionCard(BuildContext context, String title, String location, String rating, String total_reviews, String desc, String details, String price, String imgUrl) {
+  Widget _buildAttractionCard(
+      BuildContext context,
+      String title,
+      String loc,
+      String rate,
+      String revs,
+      String desc,
+      String details,
+      String pr,
+      String img) {
     final favorites = context.watch<FavoritesProvider>();
     bool isSaved = favorites.isFavorite(title);
 
     return GestureDetector(
       onTap: () {
         Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DetailsPage(
-              attraction: {
-                'name': title,
-                'location': location,
-                'rating': rating,
-                'reviews': total_reviews,
-                'description': desc,
-                'price': price,
-                'details': details,
-                'image': imgUrl,
-              },
-            ),
-          ),
-        );
+            context,
+            MaterialPageRoute(
+                builder: (context) => DetailsPage(attraction: {
+                      'name': title,
+                      'location': loc,
+                      'rating': rate,
+                      'reviews': revs,
+                      'description': desc,
+                      'price': pr,
+                      'details': details,
+                      'image': img,
+                    })));
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -267,10 +274,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 5),
-            )
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 5))
           ],
         ),
         child: Column(
@@ -279,16 +285,19 @@ class _ExploreScreenState extends State<ExploreScreen> {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(20)),
                   child: Image.network(
-                    imgUrl,
+                    img,
                     height: 180,
                     width: double.infinity,
                     fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
+                    errorBuilder: (ctx, err, stack) => Container(
                       height: 180,
                       color: Colors.grey[300],
-                      child: const Icon(Icons.broken_image),
+                      child: const Center(
+                          child: Icon(Icons.broken_image,
+                              color: Colors.grey, size: 40)),
                     ),
                   ),
                 ),
@@ -296,23 +305,21 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   top: 12,
                   right: 12,
                   child: GestureDetector(
-                    onTap: () {
-                      favorites.toggleFavorite({
-                        'name': title,
-                        'location': location,
-                        'rating': rating,
-                        'description': desc,
-                        'image': imgUrl,
-                      });
-                    },
+                    onTap: () => favorites.toggleFavorite({
+                      'name': title,
+                      'location': loc,
+                      'rating': rate,
+                      'description': desc,
+                      'image': img
+                    }),
                     child: CircleAvatar(
                       backgroundColor: Colors.white70,
                       radius: 15,
                       child: Icon(
-                        isSaved ? Icons.favorite : Icons.favorite_border,
-                        size: 18,
-                        color: isSaved ? const Color(0xFF702632) : Colors.black,
-                      ),
+                          isSaved ? Icons.favorite : Icons.favorite_border,
+                          size: 18,
+                          color:
+                              isSaved ? const Color(0xFF702632) : Colors.black),
                     ),
                   ),
                 )
@@ -326,24 +333,30 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                      Row(
-                        children: [
-                          const Icon(Icons.star, color: Colors.amber, size: 16),
-                          Text(" $rating", style: const TextStyle(fontWeight: FontWeight.bold)),
-                        ],
-                      ),
+                      Expanded(
+                          child: Text(title,
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                              overflow: TextOverflow.ellipsis)),
+                      Row(children: [
+                        const Icon(Icons.star, color: Colors.amber, size: 16),
+                        Text(" $rate",
+                            style: const TextStyle(fontWeight: FontWeight.bold))
+                      ]),
                     ],
                   ),
                   const SizedBox(height: 2),
-                  Text(location, style: const TextStyle(color: Color(0xFF702632), fontSize: 12, fontWeight: FontWeight.w600)),
+                  Text(loc,
+                      style: const TextStyle(
+                          color: Color(0xFF702632),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600)),
                   const SizedBox(height: 6),
-                  Text(
-                    desc,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: Colors.grey[600], fontSize: 13, height: 1.4),
-                  ),
+                  Text(desc,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          color: Colors.grey[600], fontSize: 13, height: 1.4)),
                 ],
               ),
             )

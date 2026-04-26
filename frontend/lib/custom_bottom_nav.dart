@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'home_page.dart';
 import 'explorPage.dart';
 import 'passport_scan_page.dart';
-import 'all_services_page.dart'; 
+import 'all_services_page.dart';
 import 'profile.dart';
-import 'user_type_page.dart';
+import 'digitalPass.dart';
+
 class CustomBottomNav extends StatelessWidget {
   final int currentIndex;
 
@@ -22,30 +23,48 @@ class CustomBottomNav extends StatelessWidget {
       onTap: (index) => _navigateToTab(context, index),
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "Home"),
-        BottomNavigationBarItem(icon: Icon(Icons.explore_outlined), label: "Explore"),
-        BottomNavigationBarItem(icon: Icon(Icons.badge_outlined), label: "Pass"),
-        BottomNavigationBarItem(icon: Icon(Icons.calendar_month_outlined), label: "Services"),
-        BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: "Profile"),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.explore_outlined), label: "Explore"),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.badge_outlined), label: "Pass"),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_month_outlined), label: "Services"),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline), label: "Profile"),
       ],
     );
   }
 
   void _navigateToTab(BuildContext context, int index) {
-    if (index == currentIndex) return; 
+    if (index == currentIndex) return;
 
     Widget page;
     switch (index) {
-      case 0: page = const HomePage(); break;
-      case 1: page = const ExploreScreen(); break;
-      case 2: page = const PassportScanPage(); break;
-      case 3: page = const ServicesScreen(); break;
-      case 4: page = const ProfileScreen(); break;
-      default: return;
+      case 0:
+        page = const HomePage();
+        break;
+      case 1:
+        page = const ExploreScreen();
+        break;
+      case 2:
+        page = const PassportScanPage();
+      case 3:
+        page = const ServicesScreen();
+        break;
+      case 4:
+        page = const ProfileScreen();
+        break;
+      default:
+        return;
     }
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => page),
+      PageRouteBuilder(
+        pageBuilder: (context, animation1, animation2) => page,
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
     );
   }
 }

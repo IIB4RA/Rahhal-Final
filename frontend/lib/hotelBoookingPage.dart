@@ -1,59 +1,97 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'auth_service.dart';
-
 import 'api_service.dart';
+import 'custom_bottom_nav.dart';
+import 'details_page.dart';
 
-class HotelBookingScreen extends StatelessWidget {
+class HotelBookingScreen extends StatefulWidget {
   const HotelBookingScreen({super.key});
 
- Future<dynamic> fetchHotels() async {
+  @override
+  State<HotelBookingScreen> createState() => _HotelBookingScreenState();
+}
+
+class _HotelBookingScreenState extends State<HotelBookingScreen> {
+  late Future<dynamic> _hotelsFuture;
+  List<dynamic> _allHotels = [];
+  List<dynamic> _filteredHotels = [];
+
+  String _selectedPriceRange = "Price";
+  String _selectedRating = " Rating";
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _hotelsFuture = _fetchHotelsData();
+  }
+
+  Future<dynamic> _fetchHotelsData() async {
     try {
       final data = await ApiService().request(
         method: 'GET',
-        endpoint: '/tourism/hotel/', 
+        endpoint: '/tourism/hotel/',
         requiresAuth: true,
       );
+
+      if (data is List) {
+        _allHotels = data;
+      } else if (data is Map && data.containsKey('results')) {
+        _allHotels = data['results'] as List<dynamic>;
+      }
+      _filteredHotels = _allHotels;
       return data;
-      } catch (e) {
-        print("Backend Connection Error: $e");
-        throw e;
-       }
+    } catch (e) {
+      debugPrint("Backend Connection Error: $e");
+      rethrow;
+    }
+  }
+
+  // تصليح منطق الفلترة ليكون أدق
+  void _applyFilters() {
+    setState(() {
+      _filteredHotels = _allHotels.where((hotel) {
+        // 1. فلترة البحث بالاسم
+        final nameMatches = (hotel['name_en'] ?? "")
+            .toString()
+            .toLowerCase()
+            .contains(_searchController.text.toLowerCase());
+
+        // 2. فلترة السعر
+        bool priceMatches = true;
+        double price =
+            double.tryParse(hotel['price_per_night'].toString()) ?? 0.0;
+        if (_selectedPriceRange == "Under \$100") {
+          priceMatches = price < 100;
+        } else if (_selectedPriceRange == "\$100 - \$200") {
+          priceMatches = price >= 100 && price <= 200;
+        }
+
+        // 3. فلترة التقييم (Rating)
+        bool ratingMatches = true;
+        if (_selectedRating != "All") {
+          double hotelRating =
+              double.tryParse(hotel['avg_rating']?.toString() ?? "0") ?? 0.0;
+          double targetRating = double.parse(_selectedRating);
+          ratingMatches = hotelRating >= targetRating;
+        }
+
+        return nameMatches && priceMatches && ratingMatches;
+      }).toList();
+    });
+  }
+
+  String _getFullImageUrl(String? url) {
+    if (url == null || url.isEmpty) {
+      return 'https://placehold.co/600x400/png?text=No+Image';
+    }
+    if (url.toLowerCase().startsWith('http')) {
+      return url;
+    }
+    return 'http://10.0.2.2:8000$url';
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<dynamic>(
-    future: fetchHotels(), 
-    builder: (context, snapshot) {
-      
-      // While waiting for the backend
-      if (snapshot.connectionState == ConnectionState.waiting) {
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
-      }
-
-      if (snapshot.hasError) {
-        return Scaffold(
-            body: Center(child: Text("Error loading hotels: ${snapshot.error}")));
-      }
-
-      final data = snapshot.data;
-      List<dynamic> hotelsList = [];
-
-      // Extract the data (the 'body')
-      if (data is List) {
-        hotelsList = data;
-      } else if (data is Map && data.containsKey('results')) {
-        hotelsList = data['results'] as List<dynamic>;
-      }
-
-  if (hotelsList.isEmpty) {
-    return const Scaffold(body: Center(child: Text("No hotels available")));
-  }
-      
-
-
     return Scaffold(
       backgroundColor: const Color(0xFFE7E9D3),
       appBar: AppBar(
@@ -63,8 +101,8 @@ class HotelBookingScreen extends StatelessWidget {
           icon: const Icon(Icons.arrow_back, color: Color(0xFF702632)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Column(
-          children: const [
+        title: const Column(
+          children: [
             Text("Rihla Stays",
                 style: TextStyle(
                     color: Color(0xFF702632), fontWeight: FontWeight.bold)),
@@ -72,31 +110,60 @@ class HotelBookingScreen extends StatelessWidget {
           ],
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.search, color: Color(0xFF702632))),
-        ],
       ),
       body: Column(
         children: [
+          _buildSearchBar(),
           _buildFilters(),
-          _buildMiniMap(),
+          // تم حذف الماب من هنا كما طلبت
           Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: hotelsList.length,
-              itemBuilder: (context, index) {
-                final hotelMap = hotelsList[index] as Map<String, dynamic>;
-                return _buildHotelCard(hotelMap);
+            child: FutureBuilder<dynamic>(
+              future: _hotelsFuture,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                      child:
+                          CircularProgressIndicator(color: Color(0xFF702632)));
+                }
+                if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                }
+                if (_filteredHotels.isEmpty) {
+                  return const Center(child: Text("No hotels found."));
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: _filteredHotels.length,
+                  itemBuilder: (context, index) {
+                    return _buildHotelCard(_filteredHotels[index]);
+                  },
+                );
               },
             ),
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 3),
     );
-    }
+  }
+
+  Widget _buildSearchBar() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: TextField(
+        controller: _searchController,
+        onChanged: (val) => _applyFilters(),
+        decoration: InputDecoration(
+          hintText: "Search hotels...",
+          prefixIcon: const Icon(Icons.search),
+          filled: true,
+          fillColor: Colors.white,
+          border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none),
+        ),
+      ),
     );
   }
 
@@ -105,72 +172,63 @@ class HotelBookingScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-                color: const Color(0xFF702632),
-                borderRadius: BorderRadius.circular(8)),
-            child: const Icon(Icons.tune, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 8),
-          _filterChip("Price Range"),
-          const SizedBox(width: 8),
-          _filterChip("Rating"),
+          _filterDropdown("Price", ["All", "Under \$100", "\$100 - \$200"],
+              (val) {
+            _selectedPriceRange = val!;
+            _applyFilters();
+          }),
+          const SizedBox(width: 10),
+          _filterDropdown("Rating", ["All", "5", "4", "3"], (val) {
+            _selectedRating = val!;
+            _applyFilters();
+          }),
         ],
       ),
     );
   }
 
-  Widget _filterChip(String label) {
+  Widget _filterDropdown(
+      String hint, List<String> items, Function(String?) onChanged) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(8)),
-      child: Row(
-        children: [
-          Text(label, style: const TextStyle(fontSize: 12)),
-          const Icon(Icons.keyboard_arrow_down, size: 16),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMiniMap() {
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      height: 80,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        image: const DecorationImage(
-          image: NetworkImage("https://via.placeholder.com/400x80"),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-              color: Colors.white, borderRadius: BorderRadius.circular(20)),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: const [
-              Icon(Icons.map_outlined, size: 16),
-              SizedBox(width: 4),
-              Text("View Map",
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
-            ],
-          ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          hint: Text(hint, style: const TextStyle(fontSize: 12)),
+          value: items.contains(hint)
+              ? hint
+              : items[0], // لضمان وجود قيمة افتراضية
+          items: items
+              .map((String value) =>
+                  DropdownMenuItem(value: value, child: Text(value)))
+              .toList(),
+          onChanged: onChanged,
         ),
       ),
     );
   }
 
   Widget _buildHotelCard(Map<String, dynamic> hotel) {
+    // حل مشكلة الـ Null باستخدام الأسماء المتوقعة من الباك إند
+    String name = hotel['name_en'] ?? 'Unknown Hotel';
+    String price = hotel['price_per_night']?.toString() ?? '0';
+    String rating = hotel['avg_rating']?.toString() ?? '0.0';
+    String reviews = hotel['total_reviews']?.toString() ?? '0';
+    String location = hotel['location'] ?? hotel['region_name_en'] ?? 'Jordan';
+    String finalImageUrl = _getFullImageUrl(hotel['image_url']);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(16)),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 5))
+          ]),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -180,42 +238,18 @@ class HotelBookingScreen extends StatelessWidget {
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(16)),
                 child: Image.network(
-                  hotel['imageUrl'] ?? 'https://via.placeholder.com/400x200?text=No+Image',
+                  finalImageUrl,
                   height: 200,
                   width: double.infinity,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) => Container(
                     height: 200,
-                    color: Colors.grey[300],
-                    child: const Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                    color: Colors.grey[200],
+                    child: const Center(
+                        child: Icon(Icons.broken_image,
+                            size: 50, color: Colors.grey)),
                   ),
                 ),
-              ),
-              if (hotel['stars'] == true)
-                Positioned(
-                  top: 12,
-                  left: 12,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                        color: const Color(0xFF702632),
-                        borderRadius: BorderRadius.circular(4)),
-                    child: const Text("TOP RATED",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.bold)),
-                  ),
-                ),
-              const Positioned(
-                top: 12,
-                right: 12,
-                child: CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: 15,
-                    child: Icon(Icons.favorite_border,
-                        size: 18, color: Colors.black)),
               ),
             ],
           ),
@@ -227,40 +261,49 @@ class HotelBookingScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(hotel['name_en'] ?? 'Unknown Hotel',
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
-                    Text("\$${hotel['price_per_night'] ?? '0'}",
+                    Expanded(
+                        child: Text(name,
+                            style: const TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis)),
+                    Text("\$$price",
                         style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF702632))),
                   ],
                 ),
+                const SizedBox(height: 4),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                        "${hotel['rating'] ?? '0'} (${hotel['reviews'] ?? '0'} reviews) • ${hotel['location'] ?? 'Unknown Location'}",
-                        style:
-                            const TextStyle(fontSize: 12, color: Colors.grey)),
-                    const Text("per night",
-                        style: TextStyle(fontSize: 10, color: Colors.grey)),
+                    const Icon(Icons.star, color: Colors.amber, size: 16),
+                    Text(" $rating ($reviews reviews)",
+                        style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w600)),
                   ],
                 ),
-                const Divider(),
+                const Divider(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(children: [
-                      const Icon(Icons.location_on_outlined,
-                          size: 16, color: Colors.brown),
-                      Text(hotel['distance'] ?? 'Distance N/A',
-                          style: const TextStyle(fontSize: 11))
+                      const Icon(Icons.location_on,
+                          size: 16, color: Color(0xFF702632)),
+                      const SizedBox(width: 4),
+                      Text(location,
+                          style: const TextStyle(
+                              fontSize: 12, fontWeight: FontWeight.w500)),
                     ]),
                     ElevatedButton(
-                      onPressed:
-                          () {}, // ask bara if ther is a booking detail/checkout page
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    DetailsPage(attraction: hotel)));
+                      },
                       style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF702632),
                           shape: RoundedRectangleBorder(
@@ -275,27 +318,6 @@ class HotelBookingScreen extends StatelessWidget {
           )
         ],
       ),
-    );
-  }
-
-  Widget _buildBottomNav() {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      selectedItemColor: const Color(0xFF8B2323),
-      unselectedItemColor: Colors.grey,
-      currentIndex: 3,
-      onTap: (index) {},
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: "Home"),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.explore_outlined), label: "Explore"),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.badge_outlined), label: "Pass"),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_month_outlined), label: "Services"),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline), label: "Profile"),
-      ],
     );
   }
 }

@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'providers/visa_application_provider.dart';
 import 'step_progress_indicator.dart';
 import 'personal_info_page.dart';
 import 'custom_bottom_nav.dart';
@@ -63,7 +65,31 @@ class _PassportScanPageState extends State<PassportScanPage> {
 
   Widget _buildBody() {
     const primaryRed = Color(0xFF7B2027);
-    const bgColor = Color(0xFFF5F5F5);
+
+    final visaProvider = Provider.of<VisaApplicationProvider>(context);
+    bool isPassActive = false;
+    String formattedExpiry = "";
+
+    if (visaProvider.passportNumber != null &&
+        visaProvider.passportNumber!.isNotEmpty) {
+      if (visaProvider.arrivalDate != null &&
+          visaProvider.arrivalDate!.isNotEmpty) {
+        try {
+          DateTime arrival = DateTime.parse(visaProvider.arrivalDate!);
+          DateTime expiry = arrival.add(const Duration(days: 30));
+
+          if (DateTime.now().isBefore(expiry)) {
+            isPassActive = true;
+            formattedExpiry = "${expiry.day}/${expiry.month}/${expiry.year}";
+          }
+        } catch (e) {
+          isPassActive = true;
+        }
+      } else {
+        isPassActive = true;
+      }
+    }
+
     return SafeArea(
       child: Column(
         children: [
@@ -72,43 +98,91 @@ class _PassportScanPageState extends State<PassportScanPage> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Center(
-                child: GestureDetector(
-                  onTap: _isLoading ? null : _pickAndUploadImage,
-                  child: Container(
-                    width: double.infinity,
-                    constraints: const BoxConstraints(minHeight: 220),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            spreadRadius: 2)
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: _image != null
-                          ? Image.file(_image!, fit: BoxFit.cover)
-                          : const Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.document_scanner_outlined,
-                                    color: Colors.grey, size: 60),
-                                SizedBox(height: 10),
-                                Text("Tap to upload passport",
-                                    style: TextStyle(
-                                        color: Colors.grey, fontSize: 16)),
-                              ],
-                            ),
-                    ),
-                  ),
-                ),
+                child: isPassActive
+                    ? _buildLockedUI(formattedExpiry)
+                    : GestureDetector(
+                        onTap: _isLoading ? null : _pickAndUploadImage,
+                        child: Container(
+                          width: double.infinity,
+                          constraints: const BoxConstraints(minHeight: 220),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                  color: Colors.black.withOpacity(0.05),
+                                  blurRadius: 10,
+                                  spreadRadius: 2)
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: _image != null
+                                ? Image.file(_image!, fit: BoxFit.cover)
+                                : const Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(Icons.document_scanner_outlined,
+                                          color: Colors.grey, size: 60),
+                                      SizedBox(height: 10),
+                                      Text("Tap to upload passport",
+                                          style: TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 16)),
+                                    ],
+                                  ),
+                          ),
+                        ),
+                      ),
               ),
             ),
           ),
-          _buildBottomPanel(primaryRed),
+          if (!isPassActive) _buildBottomPanel(primaryRed),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLockedUI(String expiryDate) {
+    return Container(
+      padding: const EdgeInsets.all(25),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+            color: const Color(0xFF7B2027).withOpacity(0.3), width: 2),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              spreadRadius: 2)
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.lock_clock, color: Color(0xFF7B2027), size: 70),
+          const SizedBox(height: 20),
+          const Text(
+            "Application Locked",
+            style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87),
+          ),
+          const SizedBox(height: 15),
+          Text(
+            "You already have an active Jordan Pass.\nIt is valid until $expiryDate.",
+            textAlign: TextAlign.center,
+            style:
+                const TextStyle(fontSize: 16, color: Colors.grey, height: 1.5),
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            "You can apply for a new pass once your current one expires (30 days after your arrival).",
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 13, color: Colors.black54),
+          ),
         ],
       ),
     );
@@ -200,7 +274,7 @@ class _PassportScanPageState extends State<PassportScanPage> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: _buildBody(),
-      bottomNavigationBar: const CustomBottomNav(currentIndex: 0),
+      bottomNavigationBar: const CustomBottomNav(currentIndex: 2),
     );
   }
 
