@@ -83,9 +83,15 @@ class LoginSerializer(serializers.Serializer):
 
         user = User.objects.filter(email__iexact=identifier).first() or User.objects.filter(phone=identifier).first()
 
-        if user and user.check_password(password):
-            data["user"] = user
-            return data
+        if user:
+            try:
+                password_matches = user.check_password(password)
+            except ValueError:
+                password_matches = False
+
+            if password_matches:
+                data["user"] = user
+                return data
         
         raise serializers.ValidationError("Invalid phone/email or password")
 
@@ -116,4 +122,3 @@ class UpdateProfileSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This phone number is already in use.")
         return phone
 
-   

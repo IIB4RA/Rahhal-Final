@@ -55,7 +55,7 @@ class _AuthPageState extends State<AuthPage> {
     final endpoint = isLogin ? '/login/' : '/register/';
 
     try {
-      debugPrint("DEBUG AUTH: calling endpoint=$endpoint with data=$authData");
+      debugPrint("DEBUG AUTH: calling endpoint=$endpoint");
       final data = await ApiService().request(
         method: 'post',
         endpoint: endpoint,

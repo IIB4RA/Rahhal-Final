@@ -95,10 +95,18 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 PASSWORD_HASHERS = [
-    'django.contrib.auth.hashers.BCryptPasswordHasher', 
-    'django.contrib.auth.hashers.BCryptSHA256PasswordHasher', 
     'django.contrib.auth.hashers.PBKDF2PasswordHasher',
 ]
+
+try:
+    import bcrypt  # noqa: F401
+except ImportError:
+    pass
+else:
+    PASSWORD_HASHERS += [
+        'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+        'django.contrib.auth.hashers.BCryptPasswordHasher',
+    ]
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
