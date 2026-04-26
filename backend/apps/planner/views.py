@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 from openai import OpenAI
 from decouple import config
 
-client = OpenAI(api_key=config('OPENAI_API_KEY'))
+client = OpenAI(api_key=config('OPENAI_API_KEY', default='')) if config('OPENAI_API_KEY', default='') else None
 
 @method_decorator(csrf_exempt, name='dispatch')
 class AITripPlannerView(APIView):
