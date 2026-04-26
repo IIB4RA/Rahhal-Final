@@ -13,8 +13,8 @@ from .serializers import LoginSerializer, MeSerializer, RegisterSerializer, Role
 User = get_user_model()
 
 # FIX: Passed the key directly as a string instead of using config()
-OPENAI_API_KEY = config('OPENAI_API_KEY')
-client = OpenAI(api_key=OPENAI_API_KEY)
+OPENAI_API_KEY = config('OPENAI_API_KEY', default='')
+client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 SYSTEM_PROMPT = """
 You are a highly accurate Passport OCR data extractor. 
@@ -98,6 +98,9 @@ class PassportScannerView(APIView):
     parser_classes = [MultiPartParser]
 
     def post(self, request, *args, **kwargs):
+        if not client:
+            return Response({"success": False, "error": "OpenAI API key not configured"}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
         image_file = request.FILES.get('image')
         if not image_file:
             return Response({"success": False, "error": "No image provided"}, status=status.HTTP_400_BAD_REQUEST)
