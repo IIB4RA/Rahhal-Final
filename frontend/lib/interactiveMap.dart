@@ -30,7 +30,7 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   List<Marker> markers = [];
 
-  final String apiUrl = 'http://10.0.2.2:8000/api/locations/';
+  final String apiUrl = 'https://rahhal-final-production.up.railway.app/api/locations/';
 
   @override
   void initState() {

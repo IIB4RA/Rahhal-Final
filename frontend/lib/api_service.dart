@@ -10,7 +10,7 @@ class ApiService {
   factory ApiService() => _instance;
   ApiService._internal();
 
-  static const String baseUrl = "10.0.2.2:8000";
+  static const String baseUrl = "rahhal-final-production.up.railway.app";
   final storage = const FlutterSecureStorage();
 
   Future<dynamic> request({
@@ -22,7 +22,7 @@ class ApiService {
   }) async {
     String path = endpoint.startsWith('/') ? "/api$endpoint" : "/api/$endpoint";
     path = path.replaceAll('//', '/');
-    final uri = Uri.http(baseUrl, path, queryParams);
+    final uri = Uri.https(baseUrl, path, queryParams);
 
     final Map<String, String> headers = {
       'Content-Type': 'application/json',

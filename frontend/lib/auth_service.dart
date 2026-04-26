@@ -60,7 +60,7 @@ Future<bool> _refreshTokens() async {
 
   try {
     final response = await http.post(
-      Uri.parse("http://192.168.1.22:8000/api/refresh/"),
+      Uri.parse("https://rahhal-final-production.up.railway.app/api/refresh/"),
       headers: {"Content-Type": "application/json"},
       body: jsonEncode({'refresh': refresh}),
     );

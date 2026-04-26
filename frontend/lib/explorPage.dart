@@ -65,7 +65,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     }
 
     // إذا كان رابط نسبي من الديجانغو المحلي
-    return 'http://10.0.2.2:8000${url.startsWith('/') ? url : '/$url'}';
+    return 'https://rahhal-final-production.up.railway.app${url.startsWith('/') ? url : '/$url'}';
   }
 
   List<dynamic> _filterItems(Map<String, dynamic> data) {

@@ -87,7 +87,7 @@ class _HotelBookingScreenState extends State<HotelBookingScreen> {
     if (url.toLowerCase().startsWith('http')) {
       return url;
     }
-    return 'http://10.0.2.2:8000$url';
+    return 'https://rahhal-final-production.up.railway.app$url';
   }
 
   @override

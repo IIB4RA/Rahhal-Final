@@ -29,7 +29,7 @@ class _AIChatScreenState extends State<AIChatScreen> {
     _scrollToBottom();
 
     try {
-      final url = Uri.parse('http://10.0.2.2:8000/api/planner/generate/');
+      final url = Uri.parse('https://rahhal-final-production.up.railway.app/api/planner/generate/');
       List<Map<String, String>> historyPayload = _messages
           .take(_messages.length - 1)
           .map((m) =>

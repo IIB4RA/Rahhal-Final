@@ -23,7 +23,7 @@ class _PassportScanPageState extends State<PassportScanPage> {
   String _errorMessage = '';
   final ImagePicker _picker = ImagePicker();
 
-  final String kApiUrl = 'http://10.0.2.2:8000/api/passport/scan/';
+  final String kApiUrl = 'https://rahhal-final-production.up.railway.app/api/passport/scan/';
 
   Future<void> _pickAndUploadImage() async {
     final XFile? pickedFile =

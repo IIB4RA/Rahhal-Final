@@ -45,7 +45,7 @@ final storage = const FlutterSecureStorage(
 
   Future<bool> handleRole(BuildContext context, String role) async {
     // 10.0.2.2 is the alias for the 127.0.0.1 on your dev machine for Android Emulator
-   final String url = "http://localhost:8000/api/role/";
+   final String url = "https://rahhal-final-production.up.railway.app/api/role/";
     
     try {
       final tokenData = await getValidAccessToken();

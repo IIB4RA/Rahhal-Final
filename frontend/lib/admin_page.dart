@@ -49,7 +49,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     setState(() => _isLoading = true);
     try {
       final response = await http.get(Uri.parse(
-          'http://10.0.2.2:8000/api/admin/analytics/?region=$_selectedRegion'));
+          'https://rahhal-final-production.up.railway.app/api/admin/analytics/?region=$_selectedRegion'));
       if (response.statusCode == 200) {
         setState(() {
           _apiData = jsonDecode(utf8.decode(response.bodyBytes))['data'];
@@ -483,7 +483,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
           const SizedBox(height: 20),
           ElevatedButton.icon(
             onPressed: () =>
-                launchUrl(Uri.parse('http://10.0.2.2:8000/api/admin/export/')),
+                launchUrl(Uri.parse('https://rahhal-final-production.up.railway.app/api/admin/export/')),
             style: ElevatedButton.styleFrom(
                 backgroundColor: zadGold,
                 foregroundColor: Colors.black,
