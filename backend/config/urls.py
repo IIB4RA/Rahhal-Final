@@ -1,7 +1,13 @@
 from django.contrib import admin
 from django.urls import path, include
+from django.http import JsonResponse
 from apps.accounts.views import PassportScannerView
+
+def health_check(request):
+    return JsonResponse({"status": "ok"})
+
 urlpatterns = [
+    path('', health_check),
     path('admin/', admin.site.urls),
     path('api/', include("apps.accounts.urls")),
     path('api/visa/', include("apps.visa.urls")),
